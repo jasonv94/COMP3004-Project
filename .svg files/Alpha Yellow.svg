@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1000" height="1000" viewBox="0 0 1000 1000" xml:space="preserve">
+<desc>Created with Fabric.js 3.5.0</desc>
+<defs>
+</defs>
+<rect x="0" y="0" width="100%" height="100%" fill="#ffffff"/>
+<g transform="matrix(0.3622 0 0 0.3622 277.8487 275.0977)" id="515923">
+<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; is-custom-font: none; font-file-url: none; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1;" x="-50" y="-50" rx="0" ry="0" width="100" height="100"/>
+</g>
+<g transform="matrix(1.0875 0 0 1.0875 74.4187 9.8608)" id="289054">
+<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; is-custom-font: none; font-file-url: none; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1;" x="-50" y="-50" rx="0" ry="0" width="100" height="100"/>
+</g>
+<g transform="matrix(5.2531 0 0 5.2531 500.3711 499.6253)" id="929589">
+<path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; is-custom-font: none; font-file-url: none; fill: rgb(252,238,33); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke" transform=" translate(-458.1921, -751.0122)" d="m 500.18427 661.46143 h 33.20312 l -20.11719 90.42968 q -5.85937 25.78125 -8.00781 31.64063 q 7.8125 35.9375 22.65625 35.9375 q 17.57813 0 18.16406 -24.21875 h 7.03125 q -0.58593 22.65625 -8.39843 36.71875 q -7.61719 13.86719 -20.11719 13.86719 q -10.35156 0 -15.42969 -8.39844 q -5.07812 -8.39844 -10.9375 -34.375 q -20.3125 42.77344 -66.40625 42.77344 q -31.44531 0 -50 -24.41407 q -18.55469 -24.60937 -18.55469 -70.3125 q 0 -44.92187 20.3125 -69.92187 q 20.3125 -25 48.82813 -25 q 20.11719 0 33.00781 14.25781 q 12.89063 14.25781 22.85156 46.48438 z m -17.1875 76.5625 q -9.17969 -31.44532 -20.50782 -49.02344 q -11.32812 -17.77344 -27.14843 -17.77344 q -35.74219 0 -35.74219 83.59375 q 0 79.29688 34.17969 79.29688 q 29.6875 0 43.94531 -69.92188 z" stroke-linecap="round"/>
+</g>
+</svg>
