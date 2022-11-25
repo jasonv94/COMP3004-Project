@@ -40,6 +40,7 @@ private:
     QVector<Menu*> subMenus;
     Menu* parent;
 
+
 };
 
 #endif // MENU_H

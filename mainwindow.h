@@ -9,6 +9,7 @@
 #include <QVector>
 #include <QtGlobal>
 #include <QMainWindow>
+#include <QDebug>
 #include "menu.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,9 +27,12 @@ private:
     Ui::MainWindow *ui;
     Menu* masterMenu;
     Menu* mainMenuOG;
+    Menu* sessionMenu;
+    void updateMenu(const QString selectedMenuItem, const QStringList menuItems);
     QListWidget *currentMenu;
 private slots:
     void navigateDownMenu();
     void navigateUpMenu();
+    void navigateSubMenu();
 };
 #endif // MAINWINDOW_H
