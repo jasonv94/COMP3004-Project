@@ -1,5 +1,5 @@
 #include "menu.h"
-
+#include "QString"
 Menu::Menu(QString n, QStringList list, Menu* p) {
 
     name = n;
@@ -19,6 +19,12 @@ Menu::~Menu() {
 void Menu::addChildMenu(Menu* m) {
 
     subMenus.push_back(m);
+}
+
+void Menu::addToMenu(int index,QString value) {
+    menuItems[index] = menuItems[index];
+    menuItems[index] = menuItems[index] + " " + value;
+
 }
 
 

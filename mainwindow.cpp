@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     currentMenu = ui->menuWidget;
     currentMenu->addItems(masterMenu->getMenuItems());
     currentMenu->setCurrentRow(0);
+    bool subMenu = false;
 
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
@@ -20,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->betaButton, &QPushButton::pressed, this, &MainWindow::betaPressed);
     connect(ui->gammaButton, &QPushButton::pressed, this, &MainWindow::gammaPressed);
     connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
+
 
 }
 
@@ -52,12 +54,13 @@ void MainWindow::navigateDownMenu() {
 void MainWindow::navigateSubMenu() {
 
     int index = currentMenu->currentRow();
-
+    //qDebug()<< currentMenu->index
     if (index < 0) return;
     qDebug()<<masterMenu->getMenuItems()[index];
     if(masterMenu->getMenuItems()[index] == "NEW SESSION"){
-        qDebug()<<"REACHED";
+        qDebug()<<sessionMenu->getMenuItems()[1] + "something";
         updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
+
     }
 
 
@@ -116,19 +119,34 @@ void MainWindow::navigateSubMenu() {
     }
     */
 }
+//remeber to increment down
 void MainWindow::alphaPressed(){
+
     ui->progressBar->setValue(2);
+    sessionMenu->addToMenu(0,"Alpha Test");
+    updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
+    qDebug()<<sessionMenu->getMenuItems()[0];
 }
 void MainWindow::betaPressed(){
     ui->progressBar->setValue(4);
+    sessionMenu->addToMenu(0,"Beta Test");
+    updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
+
 
 }
 void MainWindow::gammaPressed(){
     ui->progressBar->setValue(6);
+    sessionMenu->addToMenu(0,"Gamma Test");
+    updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
+
 
 }
+
 void MainWindow::thetaPressed(){
     ui->progressBar->setValue(8);
+    sessionMenu->addToMenu(0,"Theta Test");
+    updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
+
 
 }
 void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList menuItems) {
@@ -136,6 +154,7 @@ void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList me
     currentMenu->clear();
     currentMenu->addItems(menuItems);
     currentMenu->setCurrentRow(0);
+    mainMenuOG = sessionMenu;
 
     //ui->menuLabel->setText(selectedMenuItem);
 }
