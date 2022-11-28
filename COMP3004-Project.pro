@@ -12,12 +12,18 @@ SOURCES += \
     dbmanager.cpp \
     main.cpp \
     mainwindow.cpp \
-    menu.cpp
+    menu.cpp \
+    history.cpp \
+    therapy.cpp \
+    user.cpp
 
 HEADERS += \
     dbmanager.h \
     mainwindow.h \
-    menu.h
+    menu.h \
+    history.h \
+    therapy.h \
+    user.h
 
 FORMS += \
     mainwindow.ui

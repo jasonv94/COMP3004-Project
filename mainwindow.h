@@ -34,5 +34,9 @@ private slots:
     void navigateDownMenu();
     void navigateUpMenu();
     void navigateSubMenu();
+    void alphaPressed();
+    void betaPressed();
+    void thetaPressed();
+    void gammaPressed();
 };
 #endif // MAINWINDOW_H

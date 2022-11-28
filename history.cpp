@@ -1,10 +1,10 @@
 #include "history.h"
 
-history::history(QDateTime start, const therapy& treatment){
+History::History(QDateTime start){
     sessionStart = start;
-    session = treatment;
+
 }
 
 //get methods
-QDateTime history::get_sessionStart() const{return sessionStart;}
-therapy history::get_session() const{return session;}
+QDateTime History::get_sessionStart() const{return sessionStart;}
+//Therapy History::get_session() const{return session;}

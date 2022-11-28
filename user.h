@@ -12,12 +12,12 @@
 class User{
 private:
     QString name;//stores the name of the user
-    std::vector <history> records;//stores all of the individual treatments that have been saved
+    std::vector <History> records;//stores all of the individual treatments that have been saved
 public:
     User(QString username);
 
     QString get_name() const;
-    std::vector<history> get_history();
+    std::vector<History> get_history();
 };
 
 #endif // USER_H

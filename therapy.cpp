@@ -1,6 +1,6 @@
 #include "therapy.h"
 
-therapy::therapy(int duration, QString newSession, int initialIntensity, bool save){
+Therapy::Therapy(int duration, QString newSession, int initialIntensity, bool save){
    length = duration;
    session = newSession;
    intensity = initialIntensity;
@@ -8,11 +8,11 @@ therapy::therapy(int duration, QString newSession, int initialIntensity, bool sa
 
 }
 //get methods
-int therapy::get_length() const{return length;}
-QString therapy::get_name() const{return session;}
-int therapy::get_intensity() const{return intensity;}
-bool therapy::get_record() const{return record;}
+int Therapy::get_length() const{return length;}
+QString Therapy::get_name() const{return session;}
+int Therapy::get_intensity() const{return intensity;}
+bool Therapy::get_record() const{return record;}
 
 //set methods
-void therapy::set_intensity(int newLvl){intensity = newLvl;}
-void therapy::set_record(bool save){record = save;}
+void Therapy::set_intensity(int newLvl){intensity = newLvl;}
+void Therapy::set_record(bool save){record = save;}

@@ -16,6 +16,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
     connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
+    connect(ui->alphaButton, &QPushButton::pressed, this, &MainWindow::alphaPressed);
+    connect(ui->betaButton, &QPushButton::pressed, this, &MainWindow::betaPressed);
+    connect(ui->gammaButton, &QPushButton::pressed, this, &MainWindow::gammaPressed);
+    connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
+
 }
 
 
@@ -54,6 +59,8 @@ void MainWindow::navigateSubMenu() {
         qDebug()<<"REACHED";
         updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
     }
+
+
 
     /*
     // Prevent crash if ok button is selected in view
@@ -108,6 +115,21 @@ void MainWindow::navigateSubMenu() {
         MainWindow::updateMenu("RECORDINGS", allRecordings);
     }
     */
+}
+void MainWindow::alphaPressed(){
+    ui->progressBar->setValue(2);
+}
+void MainWindow::betaPressed(){
+    ui->progressBar->setValue(4);
+
+}
+void MainWindow::gammaPressed(){
+    ui->progressBar->setValue(6);
+
+}
+void MainWindow::thetaPressed(){
+    ui->progressBar->setValue(8);
+
 }
 void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList menuItems) {
 

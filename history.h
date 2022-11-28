@@ -9,18 +9,18 @@
  * Stores a therapy session along with the time that it started andis added into the database like this.
  */
 
-class history{
+class History{
 private:
     //QString user?
     QDateTime sessionStart;//signifies when the session started
-    therapy session;//stores all of the info about the therapy session
+    //Therapy session;//stores all of the info about the therapy session
 
 
 public:
-    history(QDateTime start,const therapy& treatment);
+    History(QDateTime start);
 
     QDateTime get_sessionStart() const;
-    therapy get_session() const;
+    Therapy get_session() const;
 
 
 };
