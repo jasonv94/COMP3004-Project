@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
     connect(ui->alphaButton, &QPushButton::pressed, this, &MainWindow::alphaPressed);
     connect(ui->betaButton, &QPushButton::pressed, this, &MainWindow::betaPressed);
-    connect(ui->gammaButton, &QPushButton::pressed, this, &MainWindow::gammaPressed);
+    connect(ui->deltaButton, &QPushButton::pressed, this, &MainWindow::deltaPressed);
     connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
 
 
@@ -143,9 +143,9 @@ void MainWindow::betaPressed(){
 
 
 }
-void MainWindow::gammaPressed(){
+void MainWindow::deltaPressed(){
     ui->progressBar->setValue(6);
-    sessionMenu->addToMenu(0,"Gamma Test");
+    sessionMenu->addToMenu(0,"Delta Test");
     updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
 
 

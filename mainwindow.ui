@@ -89,7 +89,7 @@
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-image: url(/home/student/Desktop/COMP3004-Project/images/up.png);
+image: url(:/img/images/up.png);
 border-radius: 20px;
 }
 
@@ -130,7 +130,7 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-image: url(/home/student/Desktop/COMP3004-Project/images/down.png);
+image: url(:/img/images/down.png);
 border-radius: 20px;
 }
 
@@ -171,7 +171,7 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-image: url(/home/student/Desktop/COMP3004-Project/images/power.png);
+image: url(:/img/images/power.png);
 border-radius: 20px;
 }
 
@@ -212,7 +212,7 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-image: url(/home/student/Desktop/COMP3004-Project/images/check.png);
+image: url(:/img/images/check.png);
 border-radius: 20px;
 }
 
@@ -229,8 +229,8 @@ QPushButton:pressed {
      <rect>
       <x>150</x>
       <y>220</y>
-      <width>40</width>
-      <height>40</height>
+      <width>50</width>
+      <height>50</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -241,8 +241,8 @@ QPushButton:pressed {
     </property>
     <property name="minimumSize">
      <size>
-      <width>40</width>
-      <height>40</height>
+      <width>50</width>
+      <height>50</height>
      </size>
     </property>
     <property name="maximumSize">
@@ -265,13 +265,16 @@ QPushButton:pressed {
       <bold>true</bold>
      </font>
     </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
     <property name="autoFillBackground">
      <bool>false</bool>
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
 border-radius: 20px;
-image: url(/home/student/Desktop/att5.svg);
+image: url(:/img/images/butt.svg);
 }
 
 QPushButton:pressed {
@@ -282,7 +285,7 @@ QPushButton:pressed {
      <string>SELECT</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="userMenu">
+   <widget class="QListWidget" name="menuWidget">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -294,21 +297,6 @@ QPushButton:pressed {
       <height>91</height>
      </rect>
     </property>
-    <item>
-     <property name="text">
-      <string>User 1</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>User 2</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>User 3</string>
-     </property>
-    </item>
    </widget>
    <widget class="QPushButton" name="alphaButton">
     <property name="geometry">
@@ -339,7 +327,7 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-image: url(/home/student/Desktop/COMP3004-Project/images/sesh/alpha.png);
+image: url(:/img/images/sesh/alpha.png);
 border-radius: 10px;
 }
 
@@ -383,7 +371,7 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-image: url(/home/student/Desktop/COMP3004-Project/images/sesh/beta1.png);
+image: url(:/img/images/sesh/beta1.png);
 border-radius: 10px;
 }
 
@@ -427,7 +415,7 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-image: url(/home/student/Desktop/COMP3004-Project/images/sesh/delta.png);
+image: url(:/img/images/sesh/delta.png);
 border-radius: 10px;
 }
 
@@ -468,7 +456,7 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-image: url(/home/student/Desktop/COMP3004-Project/images/sesh/theta.png);
+image: url(:/img/images/sesh/theta.png);
 border-radius: 10px;
 }
 
@@ -515,7 +503,7 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QLabel {
-image: url(/home/student/Desktop/COMP3004-Project/images/CESoutput.png);
+image: url(:/img/images/CESoutput.png);
 border-radius: 20px;
 }</string>
     </property>
@@ -558,7 +546,7 @@ border-radius: 20px;
     </property>
     <property name="styleSheet">
      <string notr="true">QLabel {
-image: url(/home/student/Desktop/COMP3004-Project/images/audoutput.png);
+image: url(:/img/images/audoutput.png);
 border-radius: 20px;
 }</string>
     </property>
@@ -601,7 +589,7 @@ border-radius: 20px;
     </property>
     <property name="styleSheet">
      <string notr="true">QLabel {
-image: url(/home/student/Desktop/COMP3004-Project/images/right-CES.png);
+image: url(:/img/images/right-CES.png);
 border-radius: 20px;
 }</string>
     </property>
@@ -644,7 +632,7 @@ border-radius: 20px;
     </property>
     <property name="styleSheet">
      <string notr="true">QLabel {
-image: url(/home/student/Desktop/COMP3004-Project/images/left-CES.png);
+image: url(:/img/images/left-CES.png);
 border-radius: 20px;
 }</string>
     </property>
@@ -687,7 +675,7 @@ border-radius: 20px;
     </property>
     <property name="styleSheet">
      <string notr="true">QLabel {
-image: url(/home/student/Desktop/COMP3004-Project/images/duty-cycle.png);
+image: url(:/img/images/duty-cycle.png);
 border-radius: 20px;
 }</string>
     </property>
@@ -730,7 +718,7 @@ border-radius: 20px;
     </property>
     <property name="styleSheet">
      <string notr="true">QLabel {
-image: url(/home/student/Desktop/COMP3004-Project/images/short-pulse.png);
+image: url(:/img/images/short-pulse.png);
 border-radius: 20px;
 }</string>
     </property>
@@ -960,14 +948,11 @@ background-color: rgb(211, 215, 207);</string>
     </property>
    </widget>
    <zorder>rmb</zorder>
-   <zorder>userMenu</zorder>
+   <zorder>menuWidget</zorder>
    <zorder>txtConsole</zorder>
    <zorder>upButton</zorder>
    <zorder>downButton</zorder>
    <zorder>powerButton</zorder>
-   <zorder>okButton</zorder>
-   <zorder>selectButton</zorder>
-   <zorder>alphaButton</zorder>
    <zorder>betaButton</zorder>
    <zorder>deltaButton</zorder>
    <zorder>thetaButton</zorder>
@@ -987,6 +972,9 @@ background-color: rgb(211, 215, 207);</string>
    <zorder>label_6</zorder>
    <zorder>label_7</zorder>
    <zorder>label_8</zorder>
+   <zorder>selectButton</zorder>
+   <zorder>okButton</zorder>
+   <zorder>alphaButton</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

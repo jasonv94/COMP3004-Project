@@ -37,6 +37,6 @@ private slots:
     void alphaPressed();
     void betaPressed();
     void thetaPressed();
-    void gammaPressed();
+    void deltaPressed();
 };
 #endif // MAINWINDOW_H
