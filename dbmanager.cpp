@@ -1,5 +1,5 @@
 #include "dbmanager.h"
-
+#include <QDebug>
 
 
 const QString DBManager::DATABASE_PATH = "/database/oasis.db";
@@ -15,7 +15,7 @@ DBManager::DBManager() {
 
     oasisDB = QSqlDatabase::addDatabase("QSQLITE");
     oasisDB.setDatabaseName("oasis.db");
-
+    qDebug()<<"THE DATABASE IS ALIVE";
     if (!oasisDB.open()) {
         throw "Error: Database could not be opened";
     }
@@ -23,6 +23,8 @@ DBManager::DBManager() {
     if (!DBInit()) {
         throw "Error: Database could not be initialized";
     }
+
+
 }
 
 
@@ -31,6 +33,13 @@ bool DBManager::DBInit() {
     oasisDB.transaction();
 
     QSqlQuery query;
+    query.exec("CREATE TABLE IF NOT EXISTS profiles ( pid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL);");
+    query.exec("CREATE TABLE IF NOT EXISTS records ( rid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,pid INTEGER NOT NULL,date TEXT NOT NULL, therapyname TEXT NOT NULL, sessiontime TEXT NOT NULL,frequency TEXT NOT NULL);");
+
+    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency) VALUES (1,'2022-01-01','Alpha','45 mins','10hz');");
+    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency) VALUES (1,'2022-01-02','Beta','25 mins','20hz');");
+    query.exec("TRUNCATE table records;");
+    /*
     query.exec("CREATE TABLE IF NOT EXISTS profiles ( pid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT, battery_level REAL NOT NULL, power_level INTEGER NOT NULL);");
     query.exec("CREATE TABLE IF NOT EXISTS frequencies ( name TEXT NOT NULL UNIQUE PRIMARY KEY);");
     query.exec("CREATE TABLE IF NOT EXISTS therapies  ( name TEXT NOT NULL UNIQUE PRIMARY KEY,  frequency TEXT NOT NULL REFERENCES frequencies, duration INTEGER NOT NULL);");
@@ -41,17 +50,56 @@ bool DBManager::DBInit() {
     // initialize device
     query.exec("INSERT OR REPLACE INTO frequencies VALUES ('10Hz'),('20Hz'),('60Hz'),('200Hz'),('7710');");
     query.exec("INSERT OR REPLACE INTO therapies VALUES('PAIN', '10Hz', 900),('GYNECOLOGIC PAIN', '7710', 900),('POTENCY', '60Hz', 900),('HEAD', '60Hz', 300);");
-
+    */
     return oasisDB.commit();
 }
 
 
+QVector<History*> DBManager::getRecordings() {
+    //will have to add for other user next
+    QSqlQuery query;
+    QVector<History*> qvr;
+    oasisDB.transaction();
+    //remeber to add filter with id so look at preparing this properly
+    query.exec("SELECT * from records;");
+    //query.exec();
 
+    while (query.next()) {
+        QString date = query.value(2).toString();
+        QString therapyName = query.value(3).toString();
+        QString sessionTime = query.value(4).toString();
+        QString frequency = query.value(5).toString();
+        History *r = new History(date, therapyName, sessionTime, frequency);
+        qvr.push_back(r);
+    }
+    return qvr;
+}
+/*
+Profile* DBManager::getProfile(int id) {
 
+    denasDB.transaction();
 
+    QSqlQuery query;
+    query.prepare("SELECT * FROM profiles WHERE pid=:pid");
+    query.bindValue(":pid", id);
+    query.exec();
 
+    if (!denasDB.commit()) {
+        throw "Error: Query failed to execute";
+    }
 
+   // profile does not exist
+    if (!query.next()) {
+        addProfile(id, 100.0, 1);
+        Profile* pro = new Profile(id, 100, 0);
+        return pro;
+    }
 
+    // profile exists
+    Profile* pro = new Profile(query.value(0).toInt(), query.value(1).toDouble(), query.value(2).toInt());
+    return pro;
+}
+*/
 /*
  * Type: Public
  * Adds a therapy record to the database, if the arguments are valid.

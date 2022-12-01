@@ -11,6 +11,7 @@
 #include <QMainWindow>
 #include <QDebug>
 #include "menu.h"
+#include "dbmanager.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -22,14 +23,21 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void changePowerStatus();
 
 private:
     Ui::MainWindow *ui;
     Menu* masterMenu;
     Menu* mainMenuOG;
     Menu* sessionMenu;
+    Menu* historyMenu;
     void updateMenu(const QString selectedMenuItem, const QStringList menuItems);
     QListWidget *currentMenu;
+    bool powerStatus;
+    DBManager* db;
+    QVector<History*> recordings;
+    QStringList userRecordings;
+
 private slots:
     void navigateDownMenu();
     void navigateUpMenu();

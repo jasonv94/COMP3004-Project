@@ -2,20 +2,28 @@
 #include "ui_mainwindow.h"
 
 #include <QPixmap>
-
+#include <QDebug>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    db = new DBManager();
+
+    int profile = 1;
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
     sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: "}, nullptr);
+    historyMenu = new Menu("HISTORY",{"RECORDS MAN"},nullptr);
     mainMenuOG = masterMenu;
+    //ui->menuWidget->setDisabled(true);
     currentMenu = ui->menuWidget;
     currentMenu->addItems(masterMenu->getMenuItems());
     currentMenu->setCurrentRow(0);
     bool subMenu = false;
-
+    recordings = db->getRecordings();
+    for (int x = 0; x < recordings.size(); x++) {
+        userRecordings+=recordings[x]->get_date()+ " "+recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+recordings[x]->get_frequency();
+    }
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
     connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
@@ -43,8 +51,11 @@ void MainWindow::navigateUpMenu() {
     if (nextIndex < 0) {
         nextIndex = currentMenu->count() - 1;
     }
+
+    qDebug()<<nextIndex;
     qDebug()<<masterMenu->getMenuItems()[nextIndex];
     currentMenu->setCurrentRow(nextIndex);
+
 }
 
 
@@ -56,7 +67,8 @@ void MainWindow::navigateDownMenu() {
         nextIndex = 0;
     }
     //qDebug()<<masterMenu->getMenuItems()[nextIndex];
-
+    qDebug()<<userRecordings.size();
+    qDebug()<<nextIndex;
     currentMenu->setCurrentRow(nextIndex);
 }
 
@@ -69,7 +81,8 @@ void MainWindow::navigateSubMenu() {
     if(masterMenu->getMenuItems()[index] == "NEW SESSION"){
         qDebug()<<sessionMenu->getMenuItems()[1] + "something";
         updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
-
+    }else if(masterMenu->getMenuItems()[index] == "HISTORY"){
+        updateMenu("RECORDINGS",userRecordings);
     }
 
 
