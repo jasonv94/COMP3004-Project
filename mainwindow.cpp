@@ -22,7 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
     bool subMenu = false;
     recordings = db->getRecordings();
     for (int x = 0; x < recordings.size(); x++) {
-        userRecordings+=recordings[x]->get_date()+ " "+recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+recordings[x]->get_frequency();
+        userRecordings.push_back(recordings[x]->get_date()+ " "+recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
+                                 recordings[x]->get_frequency());
     }
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
@@ -52,8 +53,7 @@ void MainWindow::navigateUpMenu() {
         nextIndex = currentMenu->count() - 1;
     }
 
-    qDebug()<<nextIndex;
-    qDebug()<<masterMenu->getMenuItems()[nextIndex];
+    qDebug()<<"Index from the up"+QString::number(nextIndex);
     currentMenu->setCurrentRow(nextIndex);
 
 }
@@ -67,8 +67,8 @@ void MainWindow::navigateDownMenu() {
         nextIndex = 0;
     }
     //qDebug()<<masterMenu->getMenuItems()[nextIndex];
-    qDebug()<<userRecordings.size();
-    qDebug()<<nextIndex;
+    //qDebug()<<userRecordings.size();
+    qDebug()<<"Index from the down"+QString::number(nextIndex);
     currentMenu->setCurrentRow(nextIndex);
 }
 
@@ -82,7 +82,7 @@ void MainWindow::navigateSubMenu() {
         qDebug()<<sessionMenu->getMenuItems()[1] + "something";
         updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "HISTORY"){
-        updateMenu("RECORDINGS",userRecordings);
+        MainWindow::updateMenu("RECORDINGS",userRecordings);
     }
 
 
