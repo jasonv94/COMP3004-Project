@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
 
 
-    QPixmap pix("/home/student/Desktop/COMP3004-Project/images/device.PNG");
+    QPixmap pix(":/img/images/device.PNG");
     int w = ui->rmb->width();
     int h = ui->rmb->height();
     ui->rmb->setPixmap(pix.scaled(w, h, Qt::KeepAspectRatio));
