@@ -20,11 +20,15 @@ MainWindow::MainWindow(QWidget *parent)
     currentMenu->addItems(masterMenu->getMenuItems());
     currentMenu->setCurrentRow(0);
     bool subMenu = false;
+    db->addRecord(1,"Theta","25mins","10 Hz",4);
     recordings = db->getRecordings();
+
     for (int x = 0; x < recordings.size(); x++) {
-        userRecordings.push_back(recordings[x]->get_date()+ " "+recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
-                                 recordings[x]->get_frequency());
+        qDebug()<<recordings[x]->string_record();
+        userRecordings += recordings[x]->string_record()+recordings[x]->get_date()+ " " +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
+                                 recordings[x]->get_frequency() + " " + recordings[x]->get_intensity();
     }
+    //db->addRecord(1,"Alpha")
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
     connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
@@ -32,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->betaButton, &QPushButton::pressed, this, &MainWindow::betaPressed);
     connect(ui->deltaButton, &QPushButton::pressed, this, &MainWindow::deltaPressed);
     connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
+    connect(ui->deleteButton, &QPushButton::pressed, this, &MainWindow::deleteData);
 
 
     QPixmap pix("/home/student/Desktop/COMP3004-Project/images/device.PNG");
@@ -77,7 +82,7 @@ void MainWindow::navigateSubMenu() {
     int index = currentMenu->currentRow();
     //qDebug()<< currentMenu->index
     if (index < 0) return;
-    qDebug()<<masterMenu->getMenuItems()[index];
+    //qDebug()<<masterMenu->getMenuItems()[index];
     if(masterMenu->getMenuItems()[index] == "NEW SESSION"){
         qDebug()<<sessionMenu->getMenuItems()[1] + "something";
         updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
@@ -169,6 +174,11 @@ void MainWindow::thetaPressed(){
     sessionMenu->addToMenu(0,"Theta Test");
     updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
 
+}
+void MainWindow::deleteData(){
+qDebug()<<"Data is deleted";
+//userRecordings.clear();
+db->deleteRecords();
 
 }
 void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList menuItems) {

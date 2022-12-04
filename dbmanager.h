@@ -39,9 +39,12 @@ public:
     static const QString DATABASE_PATH;
 
     DBManager();
+
     bool addTherapyRecord(const QString& therapy, const QDateTime& time, int powerLevel, int duration);
     bool addFrequencyRecord(const QString& frequency, const QDateTime& time, int powerLevel, int duration);
     bool addProfile(int id, double batterLvl, int powerLvl);
+    bool addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity);
+
     QVector<History*> getRecordings();
     bool deleteRecords();
 
@@ -51,7 +54,7 @@ private:
     QSqlDatabase oasisDB;
 
     bool isValidRecord(const QString& recordType, const QDateTime& time, int powerLevel, int duration);
-    bool addRecord(const QString& tableName, const QString& name, const QDateTime& time, int powerLevel, int duration);
+    //bool addRecord(const QString& tableName, const QString& name, const QDateTime& time, int powerLevel, int duration);
     bool DBInit();
 
 };

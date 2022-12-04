@@ -36,7 +36,7 @@ private:
     bool powerStatus;
     DBManager* db;
     QVector<History*> recordings;
-    QVector<QString> userRecordings;
+    QStringList userRecordings;
 
 private slots:
     void navigateDownMenu();
@@ -46,5 +46,6 @@ private slots:
     void betaPressed();
     void thetaPressed();
     void deltaPressed();
+    void deleteData();
 };
 #endif // MAINWINDOW_H

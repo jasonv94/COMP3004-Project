@@ -983,6 +983,19 @@ background-color: rgb(211, 215, 207);</string>
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="deleteButton">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>0</y>
+      <width>113</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Delete</string>
+    </property>
+   </widget>
    <zorder>rmb</zorder>
    <zorder>menuWidget</zorder>
    <zorder>txtConsole</zorder>
@@ -1014,6 +1027,7 @@ background-color: rgb(211, 215, 207);</string>
    <zorder>pushButton</zorder>
    <zorder>pushButton_2</zorder>
    <zorder>spinBox</zorder>
+   <zorder>deleteButton</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

@@ -1,8 +1,8 @@
 #include "dbmanager.h"
 #include <QDebug>
 
-
-const QString DBManager::DATABASE_PATH = "/database/oasis.db";
+//change this
+const QString DBManager::DATABASE_PATH = "database/oasis.db";
 
 
 /*
@@ -33,17 +33,22 @@ bool DBManager::DBInit() {
     oasisDB.transaction();
 
     QSqlQuery query;
-    query.exec("CREATE TABLE IF NOT EXISTS profiles ( pid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL);");
-    query.exec("CREATE TABLE IF NOT EXISTS records ( rid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,pid INTEGER NOT NULL,date TEXT NOT NULL, therapyname TEXT NOT NULL, sessiontime TEXT NOT NULL,frequency TEXT NOT NULL);");
+    query.exec("CREATE TABLE IF NOT EXISTS profiles ( pid INTEGER NOT NULL UNIQUE PRIMARY KEY, username TEXT NOT NULL);");
+    query.exec("CREATE TABLE IF NOT EXISTS records (rid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,pid INTEGER NOT NULL,date TEXT NOT NULL,therapyname TEXT NOT NULL, sessiontime TEXT NOT NULL,frequency TEXT NOT NULL,intensity INTEGER NOT NULL);");
 
-    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency) VALUES (1,'2022-01-01','Alpha','45 mins','10hz');");
-    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency) VALUES (1,'2022-01-02','Beta','25 mins','20hz');");
-    query.exec("TRUNCATE table records;");
+    //query.exec("INSERT OR REPLACE INTO profiles (pid,username) VALUES (1,'User 1');");
+    //query.exec("INSERT OR REPLACE INTO profiles (pid,username) VALUES (2,'User 2');");
+    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-01','Alpha','45 mins','10hz',1);");
+     //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-02','Beta','25 mins','20hz',1);");
+    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-01','Alpha','45 mins','10hz',1);");
+    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-02','Beta','25 mins','20hz',1);");
+    //query.exec("TRUNCATE table records;");
+
     /*
     query.exec("CREATE TABLE IF NOT EXISTS profiles ( pid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT, battery_level REAL NOT NULL, power_level INTEGER NOT NULL);");
     query.exec("CREATE TABLE IF NOT EXISTS frequencies ( name TEXT NOT NULL UNIQUE PRIMARY KEY);");
     query.exec("CREATE TABLE IF NOT EXISTS therapies  ( name TEXT NOT NULL UNIQUE PRIMARY KEY,  frequency TEXT NOT NULL REFERENCES frequencies, duration INTEGER NOT NULL);");
-    query.exec("CREATE TABLE IF NOT EXISTS records ( rid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,date TEXT NOT NULL,power_level INTEGER NOT NULL,duration INTEGER NOT NULL);");
+    query.exec("CREATE TABLE IF NOT EXISTS records (rid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,date TEXT NOT NULL,power_level INTEGER NOT NULL,duration INTEGER NOT NULL);");
     query.exec("CREATE TABLE IF NOT EXISTS therapy_records(name TEXT NOT NULL REFERENCES therapies,tid INTEGER NOT NULL REFERENCES records(rid) ON DELETE CASCADE, PRIMARY KEY (name, tid));");
     query.exec("CREATE TABLE IF NOT EXISTS frequency_records( name TEXT NOT NULL REFERENCES frequencies,fid INTEGER NOT NULL REFERENCES records(rid) ON DELETE CASCADE,PRIMARY KEY (name, fid));");
 
@@ -54,6 +59,15 @@ bool DBManager::DBInit() {
     return oasisDB.commit();
 }
 
+bool DBManager::deleteRecords() {
+    oasisDB.transaction();
+    QSqlQuery query;
+    query.exec("DELETE FROM records");
+
+    query.exec("DROP TABLE records");
+
+    return oasisDB.commit();
+}
 
 QVector<History*> DBManager::getRecordings() {
     //will have to add for other user next
@@ -65,14 +79,43 @@ QVector<History*> DBManager::getRecordings() {
     //query.exec();
 
     while (query.next()) {
+        int record_id = query.value(0).toInt();//this is userid i believe
         QString date = query.value(2).toString();
         QString therapyName = query.value(3).toString();
         QString sessionTime = query.value(4).toString();
         QString frequency = query.value(5).toString();
-        History *r = new History(date, therapyName, sessionTime, frequency);
+        int intensity = query.value(6).toInt();
+        History *r = new History(date, therapyName, record_id,sessionTime, frequency,intensity);
         qvr.push_back(r);
     }
     return qvr;
+}
+
+bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity) {
+
+    oasisDB.transaction();
+    //const QDateTime& time;
+
+    QSqlQuery query;
+    query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-02','Beta','25 mins','20hz',1);");
+
+    query.prepare("INSERT INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (:pid,:date,:therapyname,:sessiontime,:frequency,:intensity);");
+    query.bindValue(":pid", pid);
+    query.bindValue(":date", "2022-01-01");
+    query.bindValue(":therapyname", therapyName);
+    query.bindValue(":sessiontime", sessionTime);
+    query.bindValue(":frequency", frequency);
+    query.bindValue(":intensity", intensity);
+    query.exec();
+    /*
+    int rowid = query.lastInsertId().toInt();
+    query.prepare("INSERT INTO " + tableName + "_records VALUES (:name, :id);");
+    query.bindValue(":name", name);
+    query.bindValue(":id", rowid);
+    query.exec();
+    */
+
+    return oasisDB.commit();
 }
 /*
 Profile* DBManager::getProfile(int id) {
