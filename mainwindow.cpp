@@ -158,6 +158,10 @@ void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList me
 
     //ui->menuLabel->setText(selectedMenuItem);
 }
+void MainWindow::initTimer(QTimer* timer){
+
+    connect(timer, &QTimer::timeout, this, &MainWindow::updateTimer);
+}
 MainWindow::~MainWindow()
 {
     delete ui;

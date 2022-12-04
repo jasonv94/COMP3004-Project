@@ -1,14 +1,14 @@
 #include "therapy.h"
 
-Therapy::Therapy(int duration, QString newSession, int initialIntensity, bool save){
-   length = duration;
+Therapy::Therapy(QString newSession, int initialIntensity, bool save){
+   duration = new QTimer();
    session = newSession;
    intensity = initialIntensity;
    record = save;
 
 }
 //get methods
-int Therapy::get_length() const{return length;}
+QTimer* Therapy::get_duration() const{return duration;}
 QString Therapy::get_name() const{return session;}
 int Therapy::get_intensity() const{return intensity;}
 bool Therapy::get_record() const{return record;}

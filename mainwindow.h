@@ -30,6 +30,7 @@ private:
     Menu* sessionMenu;
     void updateMenu(const QString selectedMenuItem, const QStringList menuItems);
     QListWidget *currentMenu;
+    void initTimer(QTimer*);
 private slots:
     void navigateDownMenu();
     void navigateUpMenu();
@@ -38,5 +39,6 @@ private slots:
     void betaPressed();
     void thetaPressed();
     void gammaPressed();
+
 };
 #endif // MAINWINDOW_H
