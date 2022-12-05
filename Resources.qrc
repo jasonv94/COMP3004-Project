@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>images/user-design.png</file>
+        <file>images/up.png</file>
+        <file>images/short-pulse.png</file>
+        <file>images/right-CES.png</file>
+        <file>images/power.png</file>
+        <file>images/left-CES.png</file>
+        <file>images/duty-cycle.png</file>
+        <file>images/down.png</file>
+        <file>images/device.PNG</file>
+        <file>images/check.png</file>
+        <file>images/CESoutput.png</file>
+        <file>images/butt.svg</file>
+        <file>images/audoutput.png</file>
+        <file>images/sesh/theta.png</file>
+        <file>images/sesh/delta.png</file>
+        <file>images/sesh/beta1.png</file>
+        <file>images/sesh/alpha.png</file>
+    </qresource>
+</RCC>

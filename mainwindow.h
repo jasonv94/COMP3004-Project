@@ -5,6 +5,7 @@
 #include <QListWidget>
 #include <QGraphicsView>
 #include <QTime>
+#include <QTimer>
 #include <QStatusBar>
 #include <QVector>
 #include <QtGlobal>
@@ -26,8 +27,9 @@ public:
 private:
     Ui::MainWindow *ui;
     Menu* masterMenu;
-    Menu* mainMenuOG;
-    Menu* sessionMenu;
+    Menu* mainMenu;
+    //Menu* sessionMenu;
+    void initMenu(Menu *);
     void updateMenu(const QString selectedMenuItem, const QStringList menuItems);
     QListWidget *currentMenu;
     void initTimer(QTimer*);
@@ -38,7 +40,6 @@ private slots:
     void alphaPressed();
     void betaPressed();
     void thetaPressed();
-    void gammaPressed();
-
+    void deltaPressed();
 };
 #endif // MAINWINDOW_H

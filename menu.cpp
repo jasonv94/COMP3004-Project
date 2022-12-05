@@ -22,9 +22,13 @@ void Menu::addChildMenu(Menu* m) {
 }
 
 void Menu::addToMenu(int index,QString value) {
-    menuItems[index] = menuItems[index];
-    menuItems[index] = menuItems[index] + " " + value;
-
+    if(index == 0){
+        menuItems[index] = menuItems[index].first(5) + " " + value;
+    }else if(index == 1){
+        menuItems[index] = menuItems[index].first(5) + " " + value;
+    }else{
+        menuItems[index] = menuItems[index].first(10) + " " + value;
+    }
 }
 
 
