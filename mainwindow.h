@@ -5,6 +5,7 @@
 #include <QListWidget>
 #include <QGraphicsView>
 #include <QTime>
+#include <QTimer>
 #include <QStatusBar>
 #include <QVector>
 #include <QtGlobal>
@@ -13,7 +14,11 @@
 #include <QTime>
 #include <QTimer>
 #include "menu.h"
+#include "history.h"
 #include "dbmanager.h"
+#include "user.h"
+#include "therapy.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -35,20 +40,14 @@ private:
     Ui::MainWindow *ui;
     int currentTimerCount;
     Menu* masterMenu;
-    Menu* mainMenuOG;
-    Menu* sessionMenu;
-    Menu* historyMenu;
-    QString timeString;
+    Menu* mainMenu;
+    Therapy* currentSession;
+    User* CurrentUser;
+    void initMenu(Menu *);
     void updateMenu(const QString selectedMenuItem, const QStringList menuItems);
     QListWidget *currentMenu;
-    bool powerStatus;
-    void initializeTimer(QTimer*);
-    DBManager* db;
-    QVector<History*> recordings;
-    QStringList userRecordings;
-    QTimer *timer;
-
-
+    void initTimer(QTimer*);
+    void updateTimer();
 private slots:
     void updateTimer();
     void navigateDownMenu();
@@ -58,7 +57,6 @@ private slots:
     void betaPressed();
     void thetaPressed();
     void deltaPressed();
-    void deleteData();
-    void sessionWindow();
+    void startSession();
 };
 #endif // MAINWINDOW_H
