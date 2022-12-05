@@ -39,6 +39,9 @@ public:
 private:
     Ui::MainWindow *ui;
     int currentTimerCount;
+    DBManager* db;
+    QVector<History*> recordings;
+    QStringList userRecordings;
     Menu* masterMenu;
     Menu* mainMenu;
     Therapy* currentSession;
@@ -49,7 +52,7 @@ private:
     void initTimer(QTimer*);
     void updateTimer();
 private slots:
-    void updateTimer();
+    //void updateTimer();
     void navigateDownMenu();
     void navigateUpMenu();
     void navigateSubMenu();

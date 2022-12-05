@@ -9,9 +9,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->label_9->setHidden(true);
+    //ui->label_9->setHidden(true);
     db = new DBManager();
-    timer = new QTimer(this);
+
     int profile = 1;
     QString word = "hello";
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
@@ -32,11 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
                                  recordings[x]->get_frequency() + " " + recordings[x]->get_intensity();
     }
     //db->addRecord(1,"Alpha")
-    connect(timer, &QTimer::timeout, this,&MainWindow::updateTimer);
+
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
     connect(ui->selectButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
-    connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::sessionWindow);
     connect(ui->alphaButton, &QPushButton::pressed, this, &MainWindow::alphaPressed);
     connect(ui->betaButton, &QPushButton::pressed, this, &MainWindow::betaPressed);
     connect(ui->deltaButton, &QPushButton::pressed, this, &MainWindow::deltaPressed);
