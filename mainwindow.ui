@@ -996,6 +996,22 @@ background-color: rgb(211, 215, 207);</string>
      <string>Delete</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>140</y>
+      <width>60</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Session Tim</string>
+    </property>
+   </widget>
    <zorder>rmb</zorder>
    <zorder>menuWidget</zorder>
    <zorder>txtConsole</zorder>
@@ -1028,6 +1044,7 @@ background-color: rgb(211, 215, 207);</string>
    <zorder>pushButton_2</zorder>
    <zorder>spinBox</zorder>
    <zorder>deleteButton</zorder>
+   <zorder>label_9</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -1035,7 +1052,7 @@ background-color: rgb(211, 215, 207);</string>
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>

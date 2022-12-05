@@ -10,6 +10,8 @@
 #include <QtGlobal>
 #include <QMainWindow>
 #include <QDebug>
+#include <QTime>
+#include <QTimer>
 #include "menu.h"
 #include "dbmanager.h"
 QT_BEGIN_NAMESPACE
@@ -24,21 +26,31 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void changePowerStatus();
+    bool testSelect = false;
+    bool timeSelect = false;
+    bool sessionStart = false;
+
 
 private:
     Ui::MainWindow *ui;
+    int currentTimerCount;
     Menu* masterMenu;
     Menu* mainMenuOG;
     Menu* sessionMenu;
     Menu* historyMenu;
+    QString timeString;
     void updateMenu(const QString selectedMenuItem, const QStringList menuItems);
     QListWidget *currentMenu;
     bool powerStatus;
+    void initializeTimer(QTimer*);
     DBManager* db;
     QVector<History*> recordings;
     QStringList userRecordings;
+    QTimer *timer;
+
 
 private slots:
+    void updateTimer();
     void navigateDownMenu();
     void navigateUpMenu();
     void navigateSubMenu();
@@ -47,5 +59,6 @@ private slots:
     void thetaPressed();
     void deltaPressed();
     void deleteData();
+    void sessionWindow();
 };
 #endif // MAINWINDOW_H
