@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->betaButton, &QPushButton::pressed, this, &MainWindow::betaPressed);
     connect(ui->deltaButton, &QPushButton::pressed, this, &MainWindow::deltaPressed);
     connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
+    connect(ui->selectButton, &QPushButton::pressed, this, &MainWindow::startSession);
 
 
     QPixmap pix(":/img/images/device.PNG");
@@ -42,11 +43,13 @@ void MainWindow::initMenu(Menu* x){
     Menu* timeMenu = new Menu("TIME SELECTION MENU", {"20:00","45:00","Custom Time"}, sessionMenu);
     Menu* userMenu = new Menu("USER SELECTION MENU", {"User 1","User 2","User 3"}, x);
     Menu* history = new Menu("HISTORY",{}, x);
+    Menu* customTime = new Menu("CUSTOM TIME",{},timeMenu);
 
     x->addChildMenu(userMenu);
     x->addChildMenu(sessionMenu);
     x->addChildMenu(history);
     sessionMenu->addChildMenu(timeMenu);
+    timeMenu->addChildMenu(customTime);
 }
 
 void MainWindow::navigateUpMenu() {
@@ -90,9 +93,30 @@ void MainWindow::navigateSubMenu() {
         masterMenu = masterMenu->get(index);
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "TIME: "){
-        qDebug()<< masterMenu->getName();
         masterMenu = masterMenu->get(0);
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    }else if(masterMenu->getMenuItems()[index] == "User 1"){
+        masterMenu = masterMenu->getParent();
+        updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    }else if(masterMenu->getMenuItems()[index] == "User 2"){
+        masterMenu = masterMenu->getParent();
+        updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    }else if(masterMenu->getMenuItems()[index] == "User 3"){
+        masterMenu = masterMenu->getParent();
+        updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    }else if(masterMenu->getMenuItems()[index] == "20:00"){
+        masterMenu = masterMenu->getParent();
+        masterMenu->addToMenu(1,"20:00");
+        updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    }else if(masterMenu->getMenuItems()[index] == "45:00"){
+        masterMenu = masterMenu->getParent();
+        masterMenu->addToMenu(1,"45:00");
+        updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    }else if(masterMenu->getMenuItems()[index] == "Custom Time"){
+        masterMenu = masterMenu->get(0);
+        updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    }else if(masterMenu->getName() == "CUSTOM TIME"){
+
     }
 
 }
@@ -140,6 +164,18 @@ void MainWindow::thetaPressed(){
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     qDebug()<<masterMenu->getMenuItems()[0];
 
+}
+void MainWindow::startSession(){
+    if(masterMenu->getName() != "SESSION INFO"){
+        return;
+    }else if(masterMenu->getMenuItems()[0].length() < 7 || masterMenu->getMenuItems()[1].length() < 7 || masterMenu->getMenuItems()[2].length() < 11){
+        return;
+    }else{
+        qDebug()<<masterMenu->getMenuItems()[0].last(masterMenu->getMenuItems()[0].length()-7);
+        qDebug()<<masterMenu->getMenuItems()[1].last(masterMenu->getMenuItems()[1].length()-7).first(masterMenu->getMenuItems()[1].length()-10).toInt();
+        qDebug()<<masterMenu->getMenuItems()[2].last(masterMenu->getMenuItems()[2].length()-12);
+        Therapy* t = new Therapy(masterMenu->getMenuItems()[0].last(masterMenu->getMenuItems()[0].length()-7),1,masterMenu->getMenuItems()[2].last(masterMenu->getMenuItems()[2].length()-12));
+    }
 }
 void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList menuItems) {
 

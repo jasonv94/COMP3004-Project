@@ -12,6 +12,11 @@
 #include <QMainWindow>
 #include <QDebug>
 #include "menu.h"
+#include "history.h"
+#include "dbmanager.h"
+#include "user.h"
+#include "therapy.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -41,5 +46,6 @@ private slots:
     void betaPressed();
     void thetaPressed();
     void deltaPressed();
+    void startSession();
 };
 #endif // MAINWINDOW_H
