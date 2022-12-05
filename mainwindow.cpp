@@ -11,9 +11,6 @@ MainWindow::MainWindow(QWidget *parent)
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
     mainMenu = masterMenu;
     initMenu(masterMenu);
-    //sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: "}, nullptr);
-    //timeMenu = new Menu("TIME SELECTION MENU", {"20 Minutes","45 Minutes","Custom Time"}, nullptr);
-    //userMenu = new Menu("USER SELECTION MENU", {"20 Minutes","45 Minutes","Custom Time"}, nullptr);
     currentMenu = ui->menuWidget;
     currentMenu->addItems(masterMenu->getMenuItems());
     currentMenu->setCurrentRow(0);
@@ -171,10 +168,12 @@ void MainWindow::startSession(){
     }else if(masterMenu->getMenuItems()[0].length() < 7 || masterMenu->getMenuItems()[1].length() < 7 || masterMenu->getMenuItems()[2].length() < 11){
         return;
     }else{
-        qDebug()<<masterMenu->getMenuItems()[0].last(masterMenu->getMenuItems()[0].length()-7);
-        qDebug()<<masterMenu->getMenuItems()[1].last(masterMenu->getMenuItems()[1].length()-7).first(masterMenu->getMenuItems()[1].length()-10).toInt();
-        qDebug()<<masterMenu->getMenuItems()[2].last(masterMenu->getMenuItems()[2].length()-12);
-        Therapy* t = new Therapy(masterMenu->getMenuItems()[0].last(masterMenu->getMenuItems()[0].length()-7),1,masterMenu->getMenuItems()[2].last(masterMenu->getMenuItems()[2].length()-12));
+        //qDebug()<<masterMenu->getMenuItems()[0].last(masterMenu->getMenuItems()[0].length()-7);
+        //qDebug()<<masterMenu->getMenuItems()[1].last(masterMenu->getMenuItems()[1].length()-7).first(masterMenu->getMenuItems()[1].length()-10).toInt();
+        //qDebug()<<masterMenu->getMenuItems()[2].last(masterMenu->getMenuItems()[2].length()-12);
+        //qDebug()<<ui->progressBar->value();
+        currentSession = new Therapy(masterMenu->getMenuItems()[0].last(masterMenu->getMenuItems()[0].length()-7),ui->progressBar->value(),masterMenu->getMenuItems()[2].last(masterMenu->getMenuItems()[2].length()-12), 60 * masterMenu->getMenuItems()[1].last(masterMenu->getMenuItems()[1].length()-7).first(masterMenu->getMenuItems()[1].length()-10).toInt());
+        initTimer(currentSession->get_duration());
     }
 }
 void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList menuItems) {
@@ -187,8 +186,14 @@ void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList me
     //ui->menuLabel->setText(selectedMenuItem);
 }
 void MainWindow::initTimer(QTimer* timer){
-
-    //connect(timer, &QTimer::timeout, this, &MainWindow::updateTimer);
+    connect(timer, &QTimer::timeout, this, &MainWindow::updateTimer);
+    timer->start(1000);
+}
+void MainWindow::updateTimer(){
+    currentSession->set_time(currentSession->get_length() - 1);
+    int timeLeft = currentSession->get_length();
+    masterMenu->addToMenu(1,QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
+    updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
 }
 MainWindow::~MainWindow()
 {

@@ -33,11 +33,13 @@ private:
     Ui::MainWindow *ui;
     Menu* masterMenu;
     Menu* mainMenu;
-    //Menu* sessionMenu;
+    Therapy* currentSession;
+    User* CurrentUser;
     void initMenu(Menu *);
     void updateMenu(const QString selectedMenuItem, const QStringList menuItems);
     QListWidget *currentMenu;
     void initTimer(QTimer*);
+    void updateTimer();
 private slots:
     void navigateDownMenu();
     void navigateUpMenu();
