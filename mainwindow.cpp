@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    db = new DBManager();
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
     mainMenu = masterMenu;
     initMenu(masterMenu);
@@ -15,7 +16,15 @@ MainWindow::MainWindow(QWidget *parent)
     currentMenu->addItems(masterMenu->getMenuItems());
     currentMenu->setCurrentRow(0);
     bool subMenu = false;
-
+    recordings = db->getRecordings();
+    for (int x = 0; x < 2; x++) {
+        qDebug()<<recordings[x]->get_therapyName();
+        userRecordings += recordings[x]->string_record()+"-"+recordings[x]->get_date()+ "-" +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
+                                         recordings[x]->get_frequency() + " " + recordings[x]->get_intensity();
+    }
+    for(int x=0; x<2; x++){
+        qDebug()<<userRecordings[x];
+    }
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
     connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
@@ -39,7 +48,7 @@ void MainWindow::initMenu(Menu* x){
     Menu* sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: "}, x);
     Menu* timeMenu = new Menu("TIME SELECTION MENU", {"20:00","45:00","Custom Time"}, sessionMenu);
     Menu* userMenu = new Menu("USER SELECTION MENU", {"User 1","User 2","User 3"}, x);
-    Menu* history = new Menu("HISTORY",{}, x);
+    Menu* history = new Menu("HISTORY",userRecordings, x);
     Menu* customTime = new Menu("CUSTOM TIME",{},timeMenu);
 
     x->addChildMenu(userMenu);
@@ -88,7 +97,7 @@ void MainWindow::navigateSubMenu() {
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "HISTORY"){
         masterMenu = masterMenu->get(index);
-        updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+        updateMenu(masterMenu->getName(),userRecordings);
     }else if(masterMenu->getMenuItems()[index] == "TIME: "){
         masterMenu = masterMenu->get(0);
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());

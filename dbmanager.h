@@ -8,7 +8,7 @@
 #include <QSqlQuery>
 #include <QList>
 #include <QApplication>
-
+#include "history.h"
 
 
 /* Class Purpose: Manages interactions between application and database
@@ -36,10 +36,10 @@ class DBManager {
 public:
     const QString DATE_FORMAT = "yyyy-MM-dd hh:mm";
     static const QString DATABASE_PATH;
-
+    QVector<History*> getRecordings();
     DBManager();
     bool addTherapyRecord(const QString& therapy, const QDateTime& time, int powerLevel, int duration);
-    bool addFrequencyRecord(const QString& frequency, const QDateTime& time, int powerLevel, int duration);
+    bool addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity);
     bool addProfile(int id, double batterLvl, int powerLvl);
     bool deleteRecords();
 

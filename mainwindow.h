@@ -36,8 +36,11 @@ private:
     Therapy* currentSession;
     User* CurrentUser;
     void initMenu(Menu *);
+    DBManager* db;
     void updateMenu(const QString selectedMenuItem, const QStringList menuItems);
     QListWidget *currentMenu;
+    QVector<History*> recordings;
+    QStringList userRecordings;
     void initTimer(QTimer*);
     void updateTimer();
 private slots:
