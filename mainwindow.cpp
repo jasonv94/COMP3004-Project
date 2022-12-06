@@ -6,24 +6,27 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-{
+{   time = 10;
     ui->setupUi(this);
     db = new DBManager();
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
+    sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: "}, masterMenu);
+    therapyName = "N/A";
+    sessionTime = "N/A";
+    hz = "N/A";
     mainMenu = masterMenu;
     initMenu(masterMenu);
     currentMenu = ui->menuWidget;
     currentMenu->addItems(masterMenu->getMenuItems());
     currentMenu->setCurrentRow(0);
+    ui->sessionLabel->setHidden(true);
+    ui->frequencyLabel->setHidden(true);
+    ui->timeLabel->setHidden(true);
     bool subMenu = false;
     recordings = db->getRecordings();
-    for (int x = 0; x < 2; x++) {
-        qDebug()<<recordings[x]->get_therapyName();
-        userRecordings += recordings[x]->string_record()+"-"+recordings[x]->get_date()+ "-" +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
+    for (int x = 0; x < recordings.size(); x++) {
+        userRecordings += recordings[x]->string_record()+". "+recordings[x]->get_date()+ "-" +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
                                          recordings[x]->get_frequency() + " " + recordings[x]->get_intensity();
-    }
-    for(int x=0; x<2; x++){
-        qDebug()<<userRecordings[x];
     }
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
@@ -33,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->deltaButton, &QPushButton::pressed, this, &MainWindow::deltaPressed);
     connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
     connect(ui->selectButton, &QPushButton::pressed, this, &MainWindow::startSession);
+    connect(ui->clearButton, &QPushButton::pressed, this, &MainWindow::clear);
 
 
     QPixmap pix(":/img/images/device.PNG");
@@ -45,10 +49,10 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::initMenu(Menu* x){
-    Menu* sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: "}, x);
+
     Menu* timeMenu = new Menu("TIME SELECTION MENU", {"20:00","45:00","Custom Time"}, sessionMenu);
     Menu* userMenu = new Menu("USER SELECTION MENU", {"User 1","User 2","User 3"}, x);
-    Menu* history = new Menu("HISTORY",userRecordings, x);
+    Menu* history = new Menu("HISTORY",{}, x);
     Menu* customTime = new Menu("CUSTOM TIME",{},timeMenu);
 
     x->addChildMenu(userMenu);
@@ -59,32 +63,87 @@ void MainWindow::initMenu(Menu* x){
 }
 
 void MainWindow::navigateUpMenu() {
-
+    if(sessionStarted == true){
+        int value = ui->progressBar->value();
+        value += 1;
+        ui->progressBar->setValue(value);
+    }else{
     int nextIndex = currentMenu->currentRow() - 1;
 
     if (nextIndex < 0) {
         nextIndex = currentMenu->count() - 1;
     }
-    qDebug()<<masterMenu->getMenuItems()[nextIndex];
+
     currentMenu->setCurrentRow(nextIndex);
+    }
 }
 
-
+//    if(masterMenu->getName()=="VIEW"){
+//qDebug()<<nextIndex;
+//qDebug()<<allRecordings[nextIndex][0];
+//}
+//for retrieving history we need to mock based on the previous
+//in denas it goes based off view so we need to do the same
+//add check to make sure index isnt greater than size of list
+//we need to access directly from list of records
+//test for empty list as well
 void MainWindow::navigateDownMenu() {
 
+    if(sessionStarted == true){
+        int value = ui->progressBar->value();
+        value -= 1;
+        ui->progressBar->setValue(value);
+    }else{
     int nextIndex = currentMenu->currentRow() + 1;
 
     if (nextIndex > currentMenu->count() - 1) {
         nextIndex = 0;
     }
-    //qDebug()<<masterMenu->getMenuItems()[nextIndex];
+    //qDebug()<<nextIndex;
 
     currentMenu->setCurrentRow(nextIndex);
+    }
+}
+
+void MainWindow::clear() {
+
+   updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    //db->addRecord(1,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),currentSession->get_intensity());
+
 }
 
 void MainWindow::navigateSubMenu() {
+   //qDebug()<<"test";
+   //qDebug()<<masterMenu->getName();
 
-    int index = currentMenu->currentRow();
+   int index = currentMenu->currentRow();
+   if(masterMenu->getName()=="HISTORY"){
+       if(userRecordings.size() > 0){
+            if(userRecordings[index]!=nullptr){
+                int ridIndex = userRecordings[index].indexOf('.');
+                int rid = userRecordings[index].mid(0,ridIndex).toInt();
+                recordedSession = db->getRecord(1,rid);
+            }
+            while (masterMenu->getName() != "MAIN MENU") {
+                masterMenu = masterMenu->getParent();
+            }
+            updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
+            therapyName = recordedSession->get_therapyName();
+            sessionTime = recordedSession->get_frequency();
+            hz = recordedSession->get_sessionTime();
+            ui->sessionLabel->setText(recordedSession->get_therapyName());
+            ui->sessionLabel->setHidden(false);
+            ui->frequencyLabel->setText(recordedSession->get_frequency());
+            ui->frequencyLabel->setHidden(false);
+            ui->timeLabel->setText(recordedSession->get_sessionTime());
+            ui->timeLabel->setHidden(false);
+
+
+       }
+       return;
+   }
+
+
     qDebug()<< index;
     if (index < 0) return;
     qDebug()<<masterMenu->getMenuItems()[index];
@@ -97,6 +156,7 @@ void MainWindow::navigateSubMenu() {
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "HISTORY"){
         masterMenu = masterMenu->get(index);
+        //maybe change this menu name to recordings
         updateMenu(masterMenu->getName(),userRecordings);
     }else if(masterMenu->getMenuItems()[index] == "TIME: "){
         masterMenu = masterMenu->get(0);
@@ -112,11 +172,17 @@ void MainWindow::navigateSubMenu() {
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "20:00"){
         masterMenu = masterMenu->getParent();
-        masterMenu->addToMenu(1,"20:00");
+        sessionTime = "20:00";
+        ui->timeLabel->setHidden(false);
+        ui->timeLabel->setText(sessionTime);
+        //masterMenu->addToMenu(1,"20:00");
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "45:00"){
         masterMenu = masterMenu->getParent();
-        masterMenu->addToMenu(1,"45:00");
+        sessionTime = "45:00";
+        ui->timeLabel->setHidden(false);
+        ui->timeLabel->setText(sessionTime);
+        //masterMenu->addToMenu(1,"45:00");
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "Custom Time"){
         masterMenu = masterMenu->get(0);
@@ -131,9 +197,15 @@ void MainWindow::alphaPressed(){
     if(masterMenu->getName() != "SESSION INFO"){
         return;
     }
+    therapyName = "Alpha";
+    hz = "9-11 Hz";
     ui->progressBar->setValue(2);
-    masterMenu->addToMenu(0,"Alpha Session");
-    masterMenu->addToMenu(2,"9-11 Hz");
+    ui->sessionLabel->setHidden(false);
+    ui->sessionLabel->setText(therapyName);
+    ui->frequencyLabel->setHidden(false);
+    ui->frequencyLabel->setText(hz);
+    //masterMenu->addToMenu(0,"Alpha Session");
+    //masterMenu->addToMenu(2,"9-11 Hz");
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     qDebug()<<masterMenu->getMenuItems()[0];
 }
@@ -141,9 +213,15 @@ void MainWindow::betaPressed(){
     if(masterMenu->getName() != "SESSION INFO"){
         return;
     }
+    therapyName = "Beta 1";
+    hz = "12-15 Hz";
     ui->progressBar->setValue(4);
-    masterMenu->addToMenu(0,"Beta 1 Session");
-    masterMenu->addToMenu(2,"12-15 Hz");
+    ui->sessionLabel->setHidden(false);
+    ui->sessionLabel->setText(therapyName);
+    ui->frequencyLabel->setHidden(false);
+    ui->frequencyLabel->setText(hz);
+    //masterMenu->addToMenu(0,"Beta 1 Session");
+    //masterMenu->addToMenu(2,"12-15 Hz");
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     qDebug()<<masterMenu->getMenuItems()[0];
 
@@ -152,9 +230,15 @@ void MainWindow::deltaPressed(){
     if(masterMenu->getName() != "SESSION INFO"){
         return;
     }
+    therapyName = "Delta";
+    hz = "2.5-5 Hz";
     ui->progressBar->setValue(6);
-    masterMenu->addToMenu(0,"Delta Session");
-    masterMenu->addToMenu(2,"2.5-5 Hz");
+    ui->sessionLabel->setHidden(false);
+    ui->sessionLabel->setText(therapyName);
+    ui->frequencyLabel->setHidden(false);
+    ui->frequencyLabel->setText(hz);
+    //masterMenu->addToMenu(0,"Delta Session");
+    //masterMenu->addToMenu(2,"2.5-5 Hz");
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     qDebug()<<masterMenu->getMenuItems()[0];
 
@@ -164,28 +248,35 @@ void MainWindow::thetaPressed(){
     if(masterMenu->getName() != "SESSION INFO"){
         return;
     }
+    therapyName = "Theta";
+    hz = "6-8 Hz";
     ui->progressBar->setValue(8);
-    masterMenu->addToMenu(0,"Theta Session");
-    masterMenu->addToMenu(2,"6-8 Hz");
+    ui->sessionLabel->setHidden(false);
+    ui->sessionLabel->setText(therapyName);
+    ui->frequencyLabel->setHidden(false);
+    ui->frequencyLabel->setText(hz);
+    //masterMenu->addToMenu(0,"Theta Session");
+    //masterMenu->addToMenu(2,"6-8 Hz");
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     qDebug()<<masterMenu->getMenuItems()[0];
 
 }
+//look on previous git history to review what was here before commented out everything else
 void MainWindow::startSession(){
     if(masterMenu->getName() != "SESSION INFO"){
         return;
-    }else if(masterMenu->getMenuItems()[0].length() < 7 || masterMenu->getMenuItems()[1].length() < 7 || masterMenu->getMenuItems()[2].length() < 11){
-        return;
+    //change to add the flags in here
+    //masterMenu->getMenuItems()[0].length() < 7 || masterMenu->getMenuItems()[1].length() < 7 || masterMenu->getMenuItems()[2].length() < 11
+    }else if(therapyName == "N/A" || sessionTime == "N/A" || hz == "N/A"){
+     return;
     }else{
-        //qDebug()<<masterMenu->getMenuItems()[0].last(masterMenu->getMenuItems()[0].length()-7);
-        //qDebug()<<masterMenu->getMenuItems()[1].last(masterMenu->getMenuItems()[1].length()-7).first(masterMenu->getMenuItems()[1].length()-10).toInt();
-        //qDebug()<<masterMenu->getMenuItems()[2].last(masterMenu->getMenuItems()[2].length()-12);
-        //qDebug()<<ui->progressBar->value();
-        currentSession = new Therapy(masterMenu->getMenuItems()[0].last(masterMenu->getMenuItems()[0].length()-7),ui->progressBar->value(),masterMenu->getMenuItems()[2].last(masterMenu->getMenuItems()[2].length()-12), 60 * masterMenu->getMenuItems()[1].last(masterMenu->getMenuItems()[1].length()-7).first(masterMenu->getMenuItems()[1].length()-10).toInt());
+        sessionStarted = true;
+        int total_time = 60*ui->timeLabel->text().toInt();
+        currentSession = new Therapy(therapyName,ui->progressBar->value(),hz,total_time,sessionTime);
         initTimer(currentSession->get_duration());
     }
 }
-void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList menuItems) {
+void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList menuItems){
 
     currentMenu->clear();
     currentMenu->addItems(menuItems);
@@ -199,9 +290,32 @@ void MainWindow::initTimer(QTimer* timer){
     timer->start(1000);
 }
 void MainWindow::updateTimer(){
-    currentSession->set_time(currentSession->get_length() - 1);
+    time-=1;
+    currentSession->set_time(time);
+    //currentSession->get_length() - 1
+    //int timeLeft = currentSession->get_length();
     int timeLeft = currentSession->get_length();
-    masterMenu->addToMenu(1,QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
+    qDebug()<<timeLeft;
+    if(timeLeft < 0){
+
+    //db->addRecord(1,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),currentSession->get_intensity());
+    currentSession->get_duration()->stop();
+    currentSession->get_duration()->disconnect();
+    currentSession = nullptr;
+    //currentMenu->clear();
+    therapyName = "N/A";
+    sessionTime = "N/A";
+    hz = "N/A";
+    sessionStarted = false;
+    ui->frequencyLabel->setHidden(true);
+    ui->sessionLabel->setHidden(true);
+    ui->timeLabel->setHidden(true);
+    masterMenu = masterMenu->getParent();
+    updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    time = 10;//testing time will need to uncomment out the above for actual time parameters
+    }
+    ui->timeLabel->setText(QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
+    //masterMenu->addToMenu(1,QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
 }
 MainWindow::~MainWindow()

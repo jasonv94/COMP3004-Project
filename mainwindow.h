@@ -33,6 +33,12 @@ private:
     Ui::MainWindow *ui;
     Menu* masterMenu;
     Menu* mainMenu;
+    History *recordedSession;
+    Menu* sessionMenu;
+    QString therapyName;
+    QString sessionTime;
+    QString hz;
+    bool sessionStarted = false;
     Therapy* currentSession;
     User* CurrentUser;
     void initMenu(Menu *);
@@ -41,6 +47,7 @@ private:
     QListWidget *currentMenu;
     QVector<History*> recordings;
     QStringList userRecordings;
+    int time;
     void initTimer(QTimer*);
     void updateTimer();
 private slots:
@@ -52,5 +59,6 @@ private slots:
     void thetaPressed();
     void deltaPressed();
     void startSession();
+    void clear();
 };
 #endif // MAINWINDOW_H

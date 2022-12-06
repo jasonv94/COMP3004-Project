@@ -1,12 +1,13 @@
 #include "therapy.h"
 
-Therapy::Therapy(QString newSession, int initialIntensity, QString hertz, int t){
+Therapy::Therapy(QString newSession, int initialIntensity, QString hertz, int t,QString time){
    length = t;
    duration = new QTimer();
    session = newSession;
    intensity = initialIntensity;
    record = false;
    frequency = hertz;
+   timestring = time;
 
 }
 //get methods
@@ -16,6 +17,7 @@ QString Therapy::get_frequency() const{return frequency;}
 int Therapy::get_intensity() const{return intensity;}
 bool Therapy::get_record() const{return record;}
 int Therapy::get_length() const{return length;}
+QString Therapy::get_timestring() const{return timestring;}
 
 //set methods
 void Therapy::set_intensity(int newLvl){intensity = newLvl;}

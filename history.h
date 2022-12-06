@@ -32,6 +32,7 @@ public:
     QDateTime get_sessionStart() const;
     Therapy get_session() const;
     QString get_intensity();
+    QString toString()const;
 
 
 };
