@@ -18,3 +18,4 @@ QString History::get_frequency(){return frequency;}
 QString History::string_record(){return QString::number(session_id);}
 int History::get_sessionID(){return session_id;}
 QString History::get_intensity(){return QString::number(intensity);}
+

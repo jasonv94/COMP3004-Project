@@ -74,9 +74,14 @@ bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QStrin
 
     oasisDB.transaction();
     //const QDateTime& time;
-
+    qDebug()<<"Reached here";
+    qDebug()<<pid;
+    qDebug()<<therapyName;
+    qDebug()<<sessionTime;
+    qDebug()<<frequency;
+    qDebug()<<intensity;
     QSqlQuery query;
-    query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-02','Beta','25 mins','20hz',1);");
+    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-02','Beta','25 mins','20hz',1);");
 
     query.prepare("INSERT INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (:pid,:date,:therapyname,:sessiontime,:frequency,:intensity);");
     query.bindValue(":pid", pid);
