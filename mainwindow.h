@@ -33,6 +33,8 @@ private:
     Ui::MainWindow *ui;
     Menu* masterMenu;
     Menu* mainMenu;
+    History *recordedSession;
+    Menu* sessionMenu;
     QString therapyName;
     QString sessionTime;
     QString hz;

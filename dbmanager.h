@@ -37,6 +37,7 @@ public:
     const QString DATE_FORMAT = "yyyy-MM-dd hh:mm";
     static const QString DATABASE_PATH;
     QVector<History*> getRecordings();
+    History *getRecord(int pid, int rid);
     DBManager();
     bool addTherapyRecord(const QString& therapy, const QDateTime& time, int powerLevel, int duration);
     bool addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity);

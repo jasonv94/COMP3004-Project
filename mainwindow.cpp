@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     db = new DBManager();
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
+    sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: "}, masterMenu);
     therapyName = "N/A";
     sessionTime = "N/A";
     hz = "N/A";
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     bool subMenu = false;
     recordings = db->getRecordings();
     for (int x = 0; x < recordings.size(); x++) {
-        userRecordings += recordings[x]->string_record()+"-"+recordings[x]->get_date()+ "-" +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
+        userRecordings += recordings[x]->string_record()+". "+recordings[x]->get_date()+ "-" +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
                                          recordings[x]->get_frequency() + " " + recordings[x]->get_intensity();
     }
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
@@ -48,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::initMenu(Menu* x){
-    Menu* sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: "}, x);
+
     Menu* timeMenu = new Menu("TIME SELECTION MENU", {"20:00","45:00","Custom Time"}, sessionMenu);
     Menu* userMenu = new Menu("USER SELECTION MENU", {"User 1","User 2","User 3"}, x);
     Menu* history = new Menu("HISTORY",{}, x);
@@ -77,8 +78,17 @@ void MainWindow::navigateUpMenu() {
     }
 }
 
-
+//    if(masterMenu->getName()=="VIEW"){
+//qDebug()<<nextIndex;
+//qDebug()<<allRecordings[nextIndex][0];
+//}
+//for retrieving history we need to mock based on the previous
+//in denas it goes based off view so we need to do the same
+//add check to make sure index isnt greater than size of list
+//we need to access directly from list of records
+//test for empty list as well
 void MainWindow::navigateDownMenu() {
+
     if(sessionStarted == true){
         int value = ui->progressBar->value();
         value -= 1;
@@ -89,7 +99,7 @@ void MainWindow::navigateDownMenu() {
     if (nextIndex > currentMenu->count() - 1) {
         nextIndex = 0;
     }
-    //qDebug()<<masterMenu->getMenuItems()[nextIndex];
+    //qDebug()<<nextIndex;
 
     currentMenu->setCurrentRow(nextIndex);
     }
@@ -103,8 +113,37 @@ void MainWindow::clear() {
 }
 
 void MainWindow::navigateSubMenu() {
+   //qDebug()<<"test";
+   //qDebug()<<masterMenu->getName();
 
-    int index = currentMenu->currentRow();
+   int index = currentMenu->currentRow();
+   if(masterMenu->getName()=="HISTORY"){
+       if(userRecordings.size() > 0){
+            if(userRecordings[index]!=nullptr){
+                int ridIndex = userRecordings[index].indexOf('.');
+                int rid = userRecordings[index].mid(0,ridIndex).toInt();
+                recordedSession = db->getRecord(1,rid);
+            }
+            while (masterMenu->getName() != "MAIN MENU") {
+                masterMenu = masterMenu->getParent();
+            }
+            updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
+            therapyName = recordedSession->get_therapyName();
+            sessionTime = recordedSession->get_frequency();
+            hz = recordedSession->get_sessionTime();
+            ui->sessionLabel->setText(recordedSession->get_therapyName());
+            ui->sessionLabel->setHidden(false);
+            ui->frequencyLabel->setText(recordedSession->get_frequency());
+            ui->frequencyLabel->setHidden(false);
+            ui->timeLabel->setText(recordedSession->get_sessionTime());
+            ui->timeLabel->setHidden(false);
+
+
+       }
+       return;
+   }
+
+
     qDebug()<< index;
     if (index < 0) return;
     qDebug()<<masterMenu->getMenuItems()[index];

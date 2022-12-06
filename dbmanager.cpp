@@ -45,7 +45,37 @@ bool DBManager::DBInit() {
 }
 
 
+History * DBManager::getRecord(int pid,int rid){
+    History *record;
+    oasisDB.transaction();
+    oasisDB.transaction();
+    //const QDateTime& time;
+    QSqlQuery query;
+    //query.exec
 
+    query.prepare("SELECT * from records where :pid = pid and rid = :rid LIMIT 1;");
+    query.bindValue(":pid", pid);
+    query.bindValue(":rid",rid);
+    query.exec();
+    oasisDB.commit();
+    qDebug()<<"Get record function";
+    while(query.next()){
+        int record_id = query.value(0).toInt();//this is session id
+        QString date = query.value(2).toString();
+        QString therapyName = query.value(3).toString();
+        QString sessionTime = query.value(4).toString();
+        QString frequency = query.value(5).toString();
+        int intensity = query.value(6).toInt();
+        record = new History(date, therapyName, record_id,sessionTime, frequency,intensity);
+    }
+
+    return record;
+
+
+
+
+
+}
 
 
 QVector<History*> DBManager::getRecordings() {
@@ -74,12 +104,6 @@ bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QStrin
 
     oasisDB.transaction();
     //const QDateTime& time;
-    qDebug()<<"Reached here";
-    qDebug()<<pid;
-    qDebug()<<therapyName;
-    qDebug()<<sessionTime;
-    qDebug()<<frequency;
-    qDebug()<<intensity;
     QSqlQuery query;
     //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-02','Beta','25 mins','20hz',1);");
 
