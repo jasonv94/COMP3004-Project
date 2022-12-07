@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->deltaButton, &QPushButton::pressed, this, &MainWindow::deltaPressed);
     connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
     connect(ui->selectButton, &QPushButton::pressed, this, &MainWindow::startSession);
-    connect(ui->clearButton, &QPushButton::pressed, this, &MainWindow::clear);
+
 
 
     QPixmap pix(":/img/images/device.PNG");
@@ -120,13 +120,6 @@ void MainWindow::navigateDownMenu() {
 
     currentMenu->setCurrentRow(nextIndex);
     }
-}
-
-void MainWindow::clear() {
-
-   updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
-    //db->addRecord(1,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),currentSession->get_intensity());
-
 }
 
 void MainWindow::navigateSubMenu() {
@@ -294,7 +287,6 @@ void MainWindow::startSession(){
     }
 }
 void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList menuItems){
-
     currentMenu->clear();
     currentMenu->addItems(menuItems);
     currentMenu->setCurrentRow(0);
@@ -327,6 +319,7 @@ void MainWindow::updateTimer(){
     ui->frequencyLabel->setHidden(true);
     ui->sessionLabel->setHidden(true);
     ui->timeLabel->setHidden(true);
+    //possibly add if statement here to check menu name only if it is on the new session
     masterMenu = masterMenu->getParent();
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     time = 10;//testing time will need to uncomment out the above for actual time parameters
@@ -370,7 +363,21 @@ void MainWindow::changePowerStatus(){
        ui->menuWidget->setStyleSheet("background-color:black;");
        currentMenu->setCurrentRow(-1);
     }else{
+
+        //set background to white when on
+
         ui->menuWidget->setStyleSheet("background-color:white;");
+
+        //go back to main menu depending on nest level
+        while(masterMenu->getName()!="MAIN MENU"){
+         masterMenu = masterMenu->getParent();
+
+        }
+        qDebug()<<masterMenu->getName();
+        qDebug()<<masterMenu->getMenuItems();
+
+        //set menu back to home while loop gets us back to menu
+        updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
         currentMenu->setCurrentRow(0);
     }
 
@@ -385,6 +392,9 @@ void MainWindow::changePowerStatus(){
     ui->selectButton->setEnabled(powerStatus);
     ui->batteryBox->setEnabled(powerStatus);
     ui->connectionBox->setEnabled(powerStatus);
+    ui->sessionLabel->setHidden(true);
+    ui->frequencyLabel->setHidden(true);
+    ui->timeLabel->setHidden(true);
 
     //ui->menuWidget->setVisible(powerStatus);
     //ui->menuWidget->setStyleSheet("background-color:black;");

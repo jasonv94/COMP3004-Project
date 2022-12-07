@@ -64,6 +64,6 @@ private slots:
     void powerChange();
     void changePowerStatus();
     void changeBatteryLevel(int);
-    void clear();
+
 };
 #endif // MAINWINDOW_H
