@@ -38,6 +38,7 @@ private:
     QString therapyName;
     QString sessionTime;
     QString hz;
+    bool sessionKill;
     bool sessionStarted = false;
     bool powerStatus;
     bool therapySelected;
@@ -61,6 +62,7 @@ private slots:
     void thetaPressed();
     void deltaPressed();
     void startSession();
+    void clearHistory();
     void powerChange();
     void changePowerStatus();
     void changeBatteryLevel(int);

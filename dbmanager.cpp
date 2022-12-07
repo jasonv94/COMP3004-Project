@@ -31,6 +31,8 @@ bool DBManager::DBInit() {
     oasisDB.transaction();
 
     QSqlQuery query;
+    //query.exec("DELETE FROM RECORDS;");
+    //query.exec("TRUNCATE TABLE RECORDS;");
     //query.exec("CREATE TABLE IF NOT EXISTS profiles ( pid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT, battery_level REAL NOT NULL, power_level INTEGER NOT NULL);");
     //query.exec("CREATE TABLE IF NOT EXISTS frequencies ( name TEXT NOT NULL UNIQUE PRIMARY KEY);");
     //query.exec("CREATE TABLE IF NOT EXISTS therapies  ( name TEXT NOT NULL UNIQUE PRIMARY KEY,  frequency TEXT NOT NULL REFERENCES frequencies, duration INTEGER NOT NULL);");
@@ -40,7 +42,7 @@ bool DBManager::DBInit() {
     query.exec("CREATE TABLE IF NOT EXISTS profiles ( pid INTEGER NOT NULL UNIQUE PRIMARY KEY, username TEXT NOT NULL);");
     query.exec("CREATE TABLE IF NOT EXISTS records (rid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,pid INTEGER NOT NULL,date TEXT NOT NULL,therapyname TEXT NOT NULL, sessiontime TEXT NOT NULL,frequency TEXT NOT NULL,intensity INTEGER NOT NULL);");
     // initialize device
-    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-01','Alpha','45 mins','10hz',1);");
+    //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-01','Alpha','45','12-15hz',1);");
     return oasisDB.commit();
 }
 
@@ -101,7 +103,6 @@ QVector<History*> DBManager::getRecordings() {
 }
 
 bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity) {
-
     oasisDB.transaction();
     //const QDateTime& time;
     QSqlQuery query;
@@ -182,18 +183,18 @@ bool DBManager::addFrequencyRecord(const QString& frequency, const QDateTime& ti
  *  True - If the records were successfully removed from the database
  *  False - If the records couldn't be deleted from the database
  */
-/*
+
 bool DBManager::deleteRecords() {
 
     QSqlQuery query;
-    query.prepare("DELETE FROM records");
+    query.prepare("DELETE FROM records;");
     query.exec();
-    query.prepare("DELETE FROM therapy_records");
+    query.prepare("DELETE FROM users;");
     query.exec();
-    query.prepare("DELETE FROM frequency_records");
+    query.prepare("TRUNCATE TABLE records;");
     return query.exec();
 }
-
+/*
 
 QList<QString>* DBManager::frequencies() {
 

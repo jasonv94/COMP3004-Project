@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     therapyName = "N/A";
     sessionTime = "N/A";
     hz = "N/A";
-
+    sessionKill = false;
     mainMenu = masterMenu;
     initMenu(masterMenu);
     currentMenu = ui->menuWidget;
@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     bool subMenu = false;
     recordings = db->getRecordings();
     for (int x = 0; x < recordings.size(); x++) {
-        userRecordings += recordings[x]->string_record()+". "+recordings[x]->get_date()+ "-" +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
+        userRecordings += recordings[x]->string_record()+". "+recordings[x]->get_date()+ " " +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
                                          recordings[x]->get_frequency() + " " + recordings[x]->get_intensity();
     }
 
@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->deltaButton, &QPushButton::pressed, this, &MainWindow::deltaPressed);
     connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
     connect(ui->selectButton, &QPushButton::pressed, this, &MainWindow::startSession);
+    connect(ui->clearButton, &QPushButton::pressed, this, &MainWindow::clearHistory);
 
 
 
@@ -123,8 +124,6 @@ void MainWindow::navigateDownMenu() {
 }
 
 void MainWindow::navigateSubMenu() {
-   //qDebug()<<"test";
-   //qDebug()<<masterMenu->getName();
 
    int index = currentMenu->currentRow();
    if(masterMenu->getName()=="HISTORY"){
@@ -134,9 +133,9 @@ void MainWindow::navigateSubMenu() {
                 int rid = userRecordings[index].mid(0,ridIndex).toInt();
                 recordedSession = db->getRecord(1,rid);
             }
-            while (masterMenu->getName() != "MAIN MENU") {
-                masterMenu = masterMenu->getParent();
-            }
+
+            //setting master menu to session so proper menu is set so timecount can work
+            masterMenu = sessionMenu;
             updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
             therapyName = recordedSession->get_therapyName();
             sessionTime = recordedSession->get_frequency();
@@ -147,6 +146,7 @@ void MainWindow::navigateSubMenu() {
             ui->frequencyLabel->setHidden(false);
             ui->timeLabel->setText(recordedSession->get_sessionTime());
             ui->timeLabel->setHidden(false);
+            return;
 
 
        }
@@ -273,6 +273,7 @@ void MainWindow::thetaPressed(){
 }
 //look on previous git history to review what was here before commented out everything else
 void MainWindow::startSession(){
+    qDebug()<<masterMenu->getName();
     if(masterMenu->getName() != "SESSION INFO"){
         return;
     //change to add the flags in here
@@ -355,10 +356,24 @@ void MainWindow::changeBatteryLevel(int newLevel) {
 
 void MainWindow::changePowerStatus(){
 
-
+    qDebug()<<"pressed";
     ui->progressBar->setVisible(powerStatus);
     ui->BatteryBar->setVisible(powerStatus);
     //set background to black essentially turn it off
+
+    // this is used to end session resetting time to 10 will remove based on what was there before
+    if(sessionStarted == true){
+        //qDebug()<<currentSession->get_name();
+        //qDebug()<<currentSession->get_timestring();
+        //db->addRecord(1,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),currentSession->get_intensity());
+        currentSession->get_duration()->stop();
+        currentSession->get_duration()->disconnect();
+        currentSession = nullptr;
+        therapyName = "N/A";
+        sessionTime = "N/A";
+        hz = "N/A";
+        time = 10;
+    }
     if(!powerStatus){
        ui->menuWidget->setStyleSheet("background-color:black;");
        currentMenu->setCurrentRow(-1);
@@ -382,6 +397,7 @@ void MainWindow::changePowerStatus(){
     }
 
     //these are set up to disable or enable based on power status
+    sessionStarted = false;
     ui->upButton->setEnabled(powerStatus);
     ui->downButton->setEnabled(powerStatus);
     ui->okButton->setEnabled(powerStatus);
@@ -396,9 +412,17 @@ void MainWindow::changePowerStatus(){
     ui->frequencyLabel->setHidden(true);
     ui->timeLabel->setHidden(true);
 
+
     //ui->menuWidget->setVisible(powerStatus);
     //ui->menuWidget->setStyleSheet("background-color:black;");
 
+
+}
+
+void MainWindow::clearHistory(){
+db->deleteRecords();
+recordings.clear();
+userRecordings.clear();
 
 }
 
