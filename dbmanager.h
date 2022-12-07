@@ -36,13 +36,13 @@ class DBManager {
 public:
     const QString DATE_FORMAT = "yyyy-MM-dd hh:mm";
     static const QString DATABASE_PATH;
-    QVector<History*> getRecordings();
+    QVector<History*> getRecordings(int pid);
     History *getRecord(int pid, int rid);
     DBManager();
     bool addTherapyRecord(const QString& therapy, const QDateTime& time, int powerLevel, int duration);
     bool addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity);
     bool addProfile(int id, double batterLvl, int powerLvl);
-    bool deleteRecords();
+    bool deleteRecords(int pid);
 
 
 

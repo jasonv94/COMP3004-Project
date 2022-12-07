@@ -50,9 +50,11 @@ private:
     QListWidget *currentMenu;
     QVector<History*> recordings;
     QStringList userRecordings;
+    int currentUser;
     int time;
     void initTimer(QTimer*);
     void updateTimer();
+    void getRecordings(int currentUser);
 private slots:
     void navigateDownMenu();
     void navigateUpMenu();
@@ -66,6 +68,7 @@ private slots:
     void powerChange();
     void changePowerStatus();
     void changeBatteryLevel(int);
+
 
 };
 #endif // MAINWINDOW_H

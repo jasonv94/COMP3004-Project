@@ -31,17 +31,12 @@ bool DBManager::DBInit() {
     oasisDB.transaction();
 
     QSqlQuery query;
+    //queries to reset records taable
     //query.exec("DELETE FROM RECORDS;");
     //query.exec("TRUNCATE TABLE RECORDS;");
-    //query.exec("CREATE TABLE IF NOT EXISTS profiles ( pid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT, battery_level REAL NOT NULL, power_level INTEGER NOT NULL);");
-    //query.exec("CREATE TABLE IF NOT EXISTS frequencies ( name TEXT NOT NULL UNIQUE PRIMARY KEY);");
-    //query.exec("CREATE TABLE IF NOT EXISTS therapies  ( name TEXT NOT NULL UNIQUE PRIMARY KEY,  frequency TEXT NOT NULL REFERENCES frequencies, duration INTEGER NOT NULL);");
-    //query.exec("CREATE TABLE IF NOT EXISTS records ( rid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,date TEXT NOT NULL,power_level INTEGER NOT NULL,duration INTEGER NOT NULL);");
-    //query.exec("CREATE TABLE IF NOT EXISTS therapy_records(name TEXT NOT NULL REFERENCES therapies,tid INTEGER NOT NULL REFERENCES records(rid) ON DELETE CASCADE, PRIMARY KEY (name, tid));");
-    //query.exec("CREATE TABLE IF NOT EXISTS frequency_records( name TEXT NOT NULL REFERENCES frequencies,fid INTEGER NOT NULL REFERENCES records(rid) ON DELETE CASCADE,PRIMARY KEY (name, fid));");
     query.exec("CREATE TABLE IF NOT EXISTS profiles ( pid INTEGER NOT NULL UNIQUE PRIMARY KEY, username TEXT NOT NULL);");
     query.exec("CREATE TABLE IF NOT EXISTS records (rid INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,pid INTEGER NOT NULL,date TEXT NOT NULL,therapyname TEXT NOT NULL, sessiontime TEXT NOT NULL,frequency TEXT NOT NULL,intensity INTEGER NOT NULL);");
-    // initialize device
+    // initialize device with sample entry
     //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-01','Alpha','45','12-15hz',1);");
     return oasisDB.commit();
 }
@@ -80,13 +75,15 @@ History * DBManager::getRecord(int pid,int rid){
 }
 
 
-QVector<History*> DBManager::getRecordings() {
+QVector<History*> DBManager::getRecordings(int pid) {
     //will have to add for other user next
     QSqlQuery query;
     QVector<History*> qvr;
     oasisDB.transaction();
     //remeber to add filter with id so look at preparing this properly
-    query.exec("SELECT * from records;");
+    query.prepare("SELECT * from records where :pid = pid;");
+    query.bindValue(":pid", pid);
+    query.exec();
     //query.exec();
 
     while (query.next()) {
@@ -103,14 +100,21 @@ QVector<History*> DBManager::getRecordings() {
 }
 
 bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity) {
+    //add proper date
     oasisDB.transaction();
     //const QDateTime& time;
     QSqlQuery query;
     //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-02','Beta','25 mins','20hz',1);");
-
+    qDebug()<<pid;
+    qDebug()<<therapyName;
+    qDebug()<<"EXPECTED TIME";
+    qDebug()<<sessionTime;
+    qDebug()<<"EXPECTED FREQ";
+    qDebug()<<frequency;
+    qDebug()<<intensity;
     query.prepare("INSERT INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (:pid,:date,:therapyname,:sessiontime,:frequency,:intensity);");
     query.bindValue(":pid", pid);
-    query.bindValue(":date", "2022-01-01");
+    query.bindValue(":date", "2022-01-01");//add proper date
     query.bindValue(":therapyname", therapyName);
     query.bindValue(":sessiontime", sessionTime);
     query.bindValue(":frequency", frequency);
@@ -184,15 +188,18 @@ bool DBManager::addFrequencyRecord(const QString& frequency, const QDateTime& ti
  *  False - If the records couldn't be deleted from the database
  */
 
-bool DBManager::deleteRecords() {
-
+bool DBManager::deleteRecords(int pid) {
+    oasisDB.transaction();
     QSqlQuery query;
-    query.prepare("DELETE FROM records;");
+    query.prepare("DELETE FROM records where :pid = pid;");
+    query.bindValue(":pid",pid);
     query.exec();
     query.prepare("DELETE FROM users;");
     query.exec();
     query.prepare("TRUNCATE TABLE records;");
-    return query.exec();
+    query.exec();
+    //maybe change back to default
+    return oasisDB.commit();
 }
 /*
 
