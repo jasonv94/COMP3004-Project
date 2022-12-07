@@ -41,25 +41,6 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="txtConsole">
-    <property name="geometry">
-     <rect>
-      <x>740</x>
-      <y>80</y>
-      <width>201</width>
-      <height>221</height>
-     </rect>
-    </property>
-    <property name="autoFillBackground">
-     <bool>false</bool>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background: rgb(186, 189, 182)</string>
-    </property>
-    <property name="text">
-     <string>Outputs will go here..</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="upButton">
     <property name="geometry">
      <rect>
@@ -296,6 +277,12 @@ QPushButton:pressed {
       <width>281</width>
       <height>91</height>
      </rect>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
     </property>
    </widget>
    <widget class="QPushButton" name="alphaButton">
@@ -1047,9 +1034,41 @@ QPushButton:pressed {
      <string>TextLabel</string>
     </property>
    </widget>
+   <widget class="QSpinBox" name="batteryBox">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>80</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="connectionBox">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>110</y>
+      <width>91</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>True</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>False</string>
+     </property>
+    </item>
+   </widget>
    <zorder>rmb</zorder>
    <zorder>menuWidget</zorder>
-   <zorder>txtConsole</zorder>
    <zorder>upButton</zorder>
    <zorder>downButton</zorder>
    <zorder>powerButton</zorder>
@@ -1079,6 +1098,8 @@ QPushButton:pressed {
    <zorder>timeLabel</zorder>
    <zorder>frequencyLabel</zorder>
    <zorder>sessionLabel</zorder>
+   <zorder>batteryBox</zorder>
+   <zorder>connectionBox</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

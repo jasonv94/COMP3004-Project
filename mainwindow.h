@@ -39,6 +39,8 @@ private:
     QString sessionTime;
     QString hz;
     bool sessionStarted = false;
+    bool powerStatus;
+    bool therapySelected;
     Therapy* currentSession;
     User* CurrentUser;
     void initMenu(Menu *);
@@ -59,6 +61,9 @@ private slots:
     void thetaPressed();
     void deltaPressed();
     void startSession();
+    void powerChange();
+    void changePowerStatus();
+    void changeBatteryLevel(int);
     void clear();
 };
 #endif // MAINWINDOW_H

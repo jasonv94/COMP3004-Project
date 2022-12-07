@@ -9,25 +9,42 @@ MainWindow::MainWindow(QWidget *parent)
 {   time = 10;
     ui->setupUi(this);
     db = new DBManager();
+    powerStatus = false;
+    //ui->menuWidget->setVisible(powerStatus);
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
     sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: "}, masterMenu);
     therapyName = "N/A";
     sessionTime = "N/A";
     hz = "N/A";
+
     mainMenu = masterMenu;
     initMenu(masterMenu);
     currentMenu = ui->menuWidget;
     currentMenu->addItems(masterMenu->getMenuItems());
-    currentMenu->setCurrentRow(0);
     ui->sessionLabel->setHidden(true);
     ui->frequencyLabel->setHidden(true);
     ui->timeLabel->setHidden(true);
+    ui->batteryBox->setValue(100);
+    ui->BatteryBar->setValue(100);
+
+     // Account for device being "off" on sim start
+    powerStatus = false;
+    changePowerStatus();
+
+    // if powerStatus is true device on then set current row to beggining
+    if(powerStatus == true){
+        currentMenu->setCurrentRow(0);
+    }
+
     bool subMenu = false;
     recordings = db->getRecordings();
     for (int x = 0; x < recordings.size(); x++) {
         userRecordings += recordings[x]->string_record()+". "+recordings[x]->get_date()+ "-" +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
                                          recordings[x]->get_frequency() + " " + recordings[x]->get_intensity();
     }
+
+    connect(ui->powerButton, &QPushButton::released, this, &MainWindow::powerChange);
+    connect(ui->batteryBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::changeBatteryLevel);
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
     connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
@@ -317,6 +334,91 @@ void MainWindow::updateTimer(){
     ui->timeLabel->setText(QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
     //masterMenu->addToMenu(1,QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+}
+
+//this well need to be altered to handle battery level
+void MainWindow::changeBatteryLevel(int newLevel) {
+    if (newLevel == 0.0 && powerStatus == true) {
+        powerChange();
+    }
+
+    ui->batteryBox->setValue(newLevel);
+    ui->BatteryBar->setValue(newLevel);
+
+    QString highBatteryHealth = "QProgressBar { selection-background-color: rgb(78, 154, 6); background-color: rgb(255, 255, 255); }";
+    QString mediumBatteryHealth = "QProgressBar { selection-background-color: rgb(196, 160, 0); background-color: rgb(255, 255, 255); }";
+    QString lowBatteryHealth = "QProgressBar { selection-background-color: rgb(164, 0, 0); background-color: rgb(255, 255, 255); }";
+
+    if (newLevel >= 50) {
+        ui->BatteryBar->setStyleSheet(highBatteryHealth);
+    }
+    else if (newLevel >= 20) {
+        ui->BatteryBar->setStyleSheet(mediumBatteryHealth);
+    }
+    else {
+        ui->BatteryBar->setStyleSheet(lowBatteryHealth);
+    }
+}
+
+void MainWindow::changePowerStatus(){
+
+
+    ui->progressBar->setVisible(powerStatus);
+    ui->BatteryBar->setVisible(powerStatus);
+    //set background to black essentially turn it off
+    if(!powerStatus){
+       ui->menuWidget->setStyleSheet("background-color:black;");
+       currentMenu->setCurrentRow(-1);
+    }else{
+        ui->menuWidget->setStyleSheet("background-color:white;");
+        currentMenu->setCurrentRow(0);
+    }
+
+    //these are set up to disable or enable based on power status
+    ui->upButton->setEnabled(powerStatus);
+    ui->downButton->setEnabled(powerStatus);
+    ui->okButton->setEnabled(powerStatus);
+    ui->alphaButton->setEnabled(powerStatus);
+    ui->betaButton->setEnabled(powerStatus);
+    ui->deltaButton->setEnabled(powerStatus);
+    ui->thetaButton->setEnabled(powerStatus);
+    ui->selectButton->setEnabled(powerStatus);
+    ui->batteryBox->setEnabled(powerStatus);
+    ui->connectionBox->setEnabled(powerStatus);
+
+    //ui->menuWidget->setVisible(powerStatus);
+    //ui->menuWidget->setStyleSheet("background-color:black;");
+
+
+}
+
+
+
+void MainWindow::powerChange() {
+    powerStatus  = !powerStatus;
+    changePowerStatus();
+
+  /*
+    if (currentTimerCount != -1) {
+        //Save Record
+        if (masterMenu->getParent()->getName() == "PROGRAMS") {
+            recordings.last()->setDuration((currentTherapy->getTime())-currentTimerCount);
+            recordings.last()->setPowerLevel(maxPowerLevel);
+            db->addTherapyRecord(recordings.last()->getTreatment(),recordings.last()->getStartTime(),recordings.last()->getPowerLevel(),recordings.last()->getDuration());
+        }
+        else {
+            recordings.last()->setDuration(currentTimerCount);
+            recordings.last()->setPowerLevel(maxPowerLevel);
+            db->addFrequencyRecord(recordings.last()->getTreatment(),recordings.last()->getStartTime(),recordings.last()->getPowerLevel(),recordings.last()->getDuration());
+        }
+
+        allRecordings += recordings.last()->toString();
+        //Stop therapy
+        currentTimerCount = -1;
+        currentTherapy->getTimer()->stop();
+        currentTherapy->getTimer()->disconnect();
+        applyToSkin(false);
+    }*/
 }
 MainWindow::~MainWindow()
 {
