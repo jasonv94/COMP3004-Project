@@ -94,7 +94,12 @@ void MainWindow::navigateUpMenu(){
         value += 1;
         ui->progressBar->setValue(value);
     }else if (masterMenu->getName() == "CUSTOM TIME"){
-        ui->customTimeLabel->setText(QString::number(ui->customTimeLabel->text().first(ui->customTimeLabel->text().length()-3).toInt()+1) + ":00");
+        int sepTime = ui->customTimeLabel->text().indexOf(':');
+        int rid = ui->customTimeLabel->text().mid(0,sepTime).toInt();
+        if(rid > 1){
+            ui->customTimeLabel->setText(QString::number(rid+1) + ":00");
+        }
+//        ui->customTimeLabel->setText(QString::number(rid-1) + ":00");
 
     }else{
     int nextIndex = currentMenu->currentRow() - 1;
@@ -123,8 +128,10 @@ void MainWindow::navigateDownMenu() {
         value -= 1;
         ui->progressBar->setValue(value);
     }else if(masterMenu->getName() == "CUSTOM TIME"){
-        if(ui->customTimeLabel->text().first(ui->customTimeLabel->text().length()-3).toInt() > 1){
-            ui->customTimeLabel->setText(QString::number(ui->customTimeLabel->text().first(ui->customTimeLabel->text().length()-3).toInt()-1) + ":00");
+        int sepTime = ui->customTimeLabel->text().indexOf(':');
+        int rid = ui->customTimeLabel->text().mid(0,sepTime).toInt();
+        if(rid > 1){
+            ui->customTimeLabel->setText(QString::number(rid-1) + ":00");
         }
     }else{
     int nextIndex = currentMenu->currentRow() + 1;
@@ -341,7 +348,12 @@ void MainWindow::startSession(){
      return;
     }else{
         sessionStarted = true;
-        int total_time = 60*ui->timeLabel->text().first(ui->timeLabel->text().length()-3).toInt();
+        int sepTime = ui->customTimeLabel->text().indexOf(':');
+        int rid = ui->customTimeLabel->text().mid(0,sepTime).toInt();
+        if(rid > 1){
+            ui->customTimeLabel->setText(QString::number(rid) + ":00");
+        }
+        int total_time = 60*rid;
         currentSession = new Therapy(therapyName,ui->progressBar->value(),hz,total_time,sessionTime);
         if(ui->recordLabel->text() == "Yes"){
             currentSession->set_record(true);
@@ -543,4 +555,15 @@ void MainWindow::getRecordings(int currentUser){
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete masterMenu;
+    delete mainMenu;
+    delete recordedSession;
+    delete sessionMenu;
+    delete currentSession;
+    delete CurrentUser;
+    delete db;
+    delete currentMenu;
+    for (int i=0; i<recordings.size();i++) {
+        delete recordings[i];
+    }
 }
