@@ -242,7 +242,6 @@ QPushButton:pressed {
      <font>
       <family>Noto Sans Adlam Unjoined</family>
       <pointsize>7</pointsize>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -1043,7 +1042,6 @@ background-color: rgb(211, 215, 207);</string>
      <font>
       <family>Noto Sans Adlam Unjoined</family>
       <pointsize>7</pointsize>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -1065,6 +1063,35 @@ QPushButton:pressed {
     </property>
     <property name="text">
      <string>CLEAR ALL</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="customTimeLabel">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>70</y>
+      <width>60</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="recordLabel">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>130</y>
+      <width>60</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
     </property>
    </widget>
    <zorder>rmb</zorder>
@@ -1100,6 +1127,8 @@ QPushButton:pressed {
    <zorder>batteryBox</zorder>
    <zorder>connectionBox</zorder>
    <zorder>clearButton</zorder>
+   <zorder>customTimeLabel</zorder>
+   <zorder>recordLabel</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -1107,7 +1136,7 @@ QPushButton:pressed {
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

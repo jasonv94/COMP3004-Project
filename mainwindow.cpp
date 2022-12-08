@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     currentUser = 1;
     //ui->menuWidget->setVisible(powerStatus);
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
-    sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: "}, masterMenu);
+    sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: ","RECORD: "}, masterMenu);
     therapyName = "N/A";
     sessionTime = "N/A";
     hz = "N/A";
@@ -25,6 +25,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->sessionLabel->setHidden(true);
     ui->frequencyLabel->setHidden(true);
     ui->timeLabel->setHidden(true);
+    ui->customTimeLabel->setHidden(true);
+    ui->customTimeLabel->setText("1:00");
+    ui->recordLabel->setHidden(true);
+    ui->recordLabel->setText("No");
     ui->batteryBox->setValue(100);
     ui->BatteryBar->setValue(100);
     //Retrieve recordings based on current user
@@ -75,7 +79,7 @@ void MainWindow::initMenu(Menu* x){
     Menu* timeMenu = new Menu("TIME SELECTION MENU", {"20:00","45:00","Custom Time"}, sessionMenu);
     Menu* userMenu = new Menu("USER SELECTION MENU", {"User 1","User 2","User 3"}, x);
     Menu* history = new Menu("HISTORY",{}, x);
-    Menu* customTime = new Menu("CUSTOM TIME",{},timeMenu);
+    Menu* customTime = new Menu("CUSTOM TIME",{"Select time: "},timeMenu);
 
     x->addChildMenu(userMenu);
     x->addChildMenu(sessionMenu);
@@ -89,6 +93,9 @@ void MainWindow::navigateUpMenu(){
         int value = ui->progressBar->value();
         value += 1;
         ui->progressBar->setValue(value);
+    }else if (masterMenu->getName() == "CUSTOM TIME"){
+        ui->customTimeLabel->setText(QString::number(ui->customTimeLabel->text().first(ui->customTimeLabel->text().length()-3).toInt()+1) + ":00");
+
     }else{
     int nextIndex = currentMenu->currentRow() - 1;
 
@@ -115,6 +122,10 @@ void MainWindow::navigateDownMenu() {
         int value = ui->progressBar->value();
         value -= 1;
         ui->progressBar->setValue(value);
+    }else if(masterMenu->getName() == "CUSTOM TIME"){
+        if(ui->customTimeLabel->text().first(ui->customTimeLabel->text().length()-3).toInt() > 1){
+            ui->customTimeLabel->setText(QString::number(ui->customTimeLabel->text().first(ui->customTimeLabel->text().length()-3).toInt()-1) + ":00");
+        }
     }else{
     int nextIndex = currentMenu->currentRow() + 1;
 
@@ -167,6 +178,7 @@ void MainWindow::navigateSubMenu() {
         masterMenu = masterMenu->get(index);
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "NEW SESSION"){
+        ui->recordLabel->setHidden(false);
         masterMenu = masterMenu->get(index);
         //qDebug()<<masterMenu->getMenuItems()[1] + "something";
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
@@ -177,6 +189,10 @@ void MainWindow::navigateSubMenu() {
     }else if(masterMenu->getMenuItems()[index] == "TIME: "){
         masterMenu = masterMenu->get(0);
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+        ui->sessionLabel->setHidden(true);
+        ui->frequencyLabel->setHidden(true);
+        ui->timeLabel->setHidden(true);
+        ui->recordLabel->setHidden(true);
     }else if(masterMenu->getMenuItems()[index] == "User 1"){
         currentUser = 1;//update current user
         getRecordings(currentUser);
@@ -197,6 +213,11 @@ void MainWindow::navigateSubMenu() {
         sessionTime = "20:00";
         ui->timeLabel->setHidden(false);
         ui->timeLabel->setText(sessionTime);
+        if(ui->sessionLabel->text() != "TextLabel"){
+            ui->sessionLabel->setHidden(false);
+            ui->frequencyLabel->setHidden(false);
+        }
+        ui->recordLabel->setHidden(false);
         //masterMenu->addToMenu(1,"20:00");
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "45:00"){
@@ -204,13 +225,37 @@ void MainWindow::navigateSubMenu() {
         sessionTime = "45:00";
         ui->timeLabel->setHidden(false);
         ui->timeLabel->setText(sessionTime);
+        if(ui->sessionLabel->text() != "TextLabel"){
+            ui->sessionLabel->setHidden(false);
+            ui->frequencyLabel->setHidden(false);
+        }
+        ui->recordLabel->setHidden(false);
         //masterMenu->addToMenu(1,"45:00");
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "Custom Time"){
+        ui->customTimeLabel->setHidden(false);
         masterMenu = masterMenu->get(0);
+        qDebug()<<masterMenu->getName();
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getName() == "CUSTOM TIME"){
-
+        qDebug()<<"here";
+        sessionTime = ui->customTimeLabel->text();
+        ui->timeLabel->setHidden(false);
+        ui->timeLabel->setText(sessionTime);
+        if(ui->sessionLabel->text() != "TextLabel"){
+            ui->sessionLabel->setHidden(false);
+            ui->frequencyLabel->setHidden(false);
+        }
+        ui->recordLabel->setHidden(false);
+        ui->customTimeLabel->setHidden(true);
+        masterMenu = masterMenu->getParent()->getParent();
+        updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+    }else if(masterMenu->getMenuItems()[index] == "RECORD: "){
+        if(ui->recordLabel->text() == "Yes"){
+            ui->recordLabel->setText("No");
+        }else{
+            ui->recordLabel->setText("Yes");
+        }
     }
 
 }
@@ -296,6 +341,9 @@ void MainWindow::startSession(){
         sessionStarted = true;
         int total_time = 60*ui->timeLabel->text().toInt();
         currentSession = new Therapy(therapyName,ui->progressBar->value(),hz,total_time,sessionTime);
+        if(ui->recordLabel->text() == "Yes"){
+            currentSession->set_record(true);
+        }
         initTimer(currentSession->get_duration());
     }
 }
@@ -332,6 +380,7 @@ void MainWindow::updateTimer(){
     ui->frequencyLabel->setHidden(true);
     ui->sessionLabel->setHidden(true);
     ui->timeLabel->setHidden(true);
+    ui->recordLabel->setHidden(true);
     //possibly add if statement here to check menu name only if it is on the new session
     masterMenu = masterMenu->getParent();
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
@@ -400,6 +449,7 @@ void MainWindow::changePowerStatus(){
          masterMenu = masterMenu->getParent();
 
         }
+        masterMenu = masterMenu->get(0);
         qDebug()<<masterMenu->getName();
         qDebug()<<masterMenu->getMenuItems();
 
@@ -424,6 +474,8 @@ void MainWindow::changePowerStatus(){
     ui->sessionLabel->setHidden(true);
     ui->frequencyLabel->setHidden(true);
     ui->timeLabel->setHidden(true);
+    ui->customTimeLabel->setHidden(true);
+    ui->recordLabel->setHidden(true);
 
 
 
