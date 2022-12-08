@@ -99,7 +99,6 @@ void MainWindow::navigateUpMenu(){
         if(rid > 1){
             ui->customTimeLabel->setText(QString::number(rid+1) + ":00");
         }
-//        ui->customTimeLabel->setText(QString::number(rid-1) + ":00");
 
     }else{
     int nextIndex = currentMenu->currentRow() - 1;
@@ -348,11 +347,9 @@ void MainWindow::startSession(){
      return;
     }else{
         sessionStarted = true;
-        int sepTime = ui->customTimeLabel->text().indexOf(':');
-        int rid = ui->customTimeLabel->text().mid(0,sepTime).toInt();
-        if(rid > 1){
-            ui->customTimeLabel->setText(QString::number(rid) + ":00");
-        }
+        int sepTime = ui->timeLabel->text().indexOf(':');
+        int rid = ui->timeLabel->text().mid(0,sepTime).toInt();
+        ui->customTimeLabel->setText(QString::number(rid) + ":00");
         int total_time = 60*rid;
         currentSession = new Therapy(therapyName,ui->progressBar->value(),hz,total_time,sessionTime);
         if(ui->recordLabel->text() == "Yes"){
