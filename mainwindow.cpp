@@ -154,14 +154,15 @@ void MainWindow::navigateSubMenu() {
             masterMenu = sessionMenu;
             updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
             therapyName = recordedSession->get_therapyName();
-            sessionTime = recordedSession->get_frequency();
-            hz = recordedSession->get_sessionTime();
+            sessionTime = recordedSession->get_sessionTime();
+            hz = recordedSession->get_frequency();
             ui->sessionLabel->setText(recordedSession->get_therapyName());
             ui->sessionLabel->setHidden(false);
             ui->frequencyLabel->setText(recordedSession->get_frequency());
             ui->frequencyLabel->setHidden(false);
             ui->timeLabel->setText(recordedSession->get_sessionTime());
             ui->timeLabel->setHidden(false);
+            ui->recordLabel->setHidden(false);
             ui->progressBar->setValue(recordedSession->get_intensity().toInt());
             return;
 
@@ -185,6 +186,7 @@ void MainWindow::navigateSubMenu() {
     }else if(masterMenu->getMenuItems()[index] == "HISTORY"){
         masterMenu = masterMenu->get(index);
         //maybe change this menu name to recordings
+        getRecordings(currentUser);
         updateMenu(masterMenu->getName(),userRecordings);
     }else if(masterMenu->getMenuItems()[index] == "TIME: "){
         masterMenu = masterMenu->get(0);
@@ -195,17 +197,14 @@ void MainWindow::navigateSubMenu() {
         ui->recordLabel->setHidden(true);
     }else if(masterMenu->getMenuItems()[index] == "User 1"){
         currentUser = 1;//update current user
-        getRecordings(currentUser);
         masterMenu = masterMenu->getParent();
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "User 2"){
         currentUser = 2;//update current user and get new recordings
-        getRecordings(currentUser);
         masterMenu = masterMenu->getParent();
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "User 3"){
         currentUser = 3;//update current user
-        getRecordings(currentUser);
         masterMenu = masterMenu->getParent();
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "20:00"){
@@ -330,6 +329,9 @@ void MainWindow::thetaPressed(){
 }
 //look on previous git history to review what was here before commented out everything else
 void MainWindow::startSession(){
+    if(sessionStarted == true){
+        return;
+    }
     qDebug()<<masterMenu->getName();
     if(masterMenu->getName() != "SESSION INFO"){
         return;
@@ -339,7 +341,7 @@ void MainWindow::startSession(){
      return;
     }else{
         sessionStarted = true;
-        int total_time = 60*ui->timeLabel->text().toInt();
+        int total_time = 60*ui->timeLabel->text().first(ui->timeLabel->text().length()-3).toInt();
         currentSession = new Therapy(therapyName,ui->progressBar->value(),hz,total_time,sessionTime);
         if(ui->recordLabel->text() == "Yes"){
             currentSession->set_record(true);
@@ -359,16 +361,16 @@ void MainWindow::initTimer(QTimer* timer){
     connect(timer, &QTimer::timeout, this, &MainWindow::updateTimer);
     timer->start(1000);
 }
+
 void MainWindow::updateTimer(){
-    time-=1;
-    currentSession->set_time(time);
-    //currentSession->get_length() - 1
-    //int timeLeft = currentSession->get_length();
+    //time-=1;
+    currentSession->set_time(currentSession->get_length() - 1);
     int timeLeft = currentSession->get_length();
     qDebug()<<timeLeft;
     if(timeLeft < 0){
-
-    //db->addRecord(currentUser,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),ui->progressBar->value());
+    if(currentSession->get_record()){
+        db->addRecord(currentUser,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),ui->progressBar->value());
+    }
     currentSession->get_duration()->stop();
     currentSession->get_duration()->disconnect();
     currentSession = nullptr;
@@ -425,15 +427,17 @@ void MainWindow::changePowerStatus(){
     // this is used to end session resetting time to 10 will remove based on what was there before
     if(sessionStarted == true){
         //qDebug()<<currentSession->get_name();
-        //qDebug()<<currentSession->get_timestring();                                                                         //changed from currentSession->get_intensity();
-        db->addRecord(currentUser,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),ui->progressBar->value());
+        //qDebug()<<currentSession->get_timestring();
+        //changed from currentSession->get_intensity();
+        if(currentSession->get_record()){
+            db->addRecord(currentUser,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),ui->progressBar->value());
+        }
         currentSession->get_duration()->stop();
         currentSession->get_duration()->disconnect();
         currentSession = nullptr;
         therapyName = "N/A";
         sessionTime = "N/A";
         hz = "N/A";
-        time = 10;
     }
     if(!powerStatus){
        ui->menuWidget->setStyleSheet("background-color:black;");
@@ -476,6 +480,8 @@ void MainWindow::changePowerStatus(){
     ui->timeLabel->setHidden(true);
     ui->customTimeLabel->setHidden(true);
     ui->recordLabel->setHidden(true);
+    ui->frequencyLabel->setText("");
+    ui->sessionLabel->setText("");
 
 
 
@@ -487,10 +493,13 @@ void MainWindow::changePowerStatus(){
 
 // delete history based off the currentUser;
 void MainWindow::clearHistory(){
-db->deleteRecords(currentUser);
-recordings.clear();
-userRecordings.clear();
-
+if(masterMenu->getName() == "HISTORY"){
+    db->deleteRecords(currentUser);
+    recordings.clear();
+    userRecordings.clear();
+    masterMenu = masterMenu->getParent();
+    updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
+}
 }
 
 
@@ -528,7 +537,7 @@ void MainWindow::getRecordings(int currentUser){
     recordings = db->getRecordings(currentUser);
     for (int x = 0; x < recordings.size(); x++) {
         userRecordings += recordings[x]->string_record()+". "+recordings[x]->get_date()+ " " +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
-                                         recordings[x]->get_frequency() + " " + recordings[x]->get_intensity();
+                                         recordings[x]->get_frequency() + " Intensity: " + recordings[x]->get_intensity();
     }
 }
 MainWindow::~MainWindow()
