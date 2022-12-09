@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QPixmap>
-
+int MAX_TIME = 300;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -11,6 +11,9 @@ MainWindow::MainWindow(QWidget *parent)
     db = new DBManager();
     powerStatus = false;
     currentUser = 1;
+    tempLevel = 100.0;
+    batteryHealth = 100;
+    drainFactor = 1.0/3600.00;
     //ui->menuWidget->setVisible(powerStatus);
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
     sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: ","RECORD: "}, masterMenu);
@@ -52,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     */
 
     connect(ui->powerButton, &QPushButton::released, this, &MainWindow::powerChange);
-    connect(ui->batteryBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::changeBatteryLevel);
+    connect(ui->batteryBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::changeBatteryHealth);
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
     connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
@@ -335,6 +338,10 @@ void MainWindow::thetaPressed(){
 }
 //look on previous git history to review what was here before commented out everything else
 void MainWindow::startSession(){
+    //If battery is only at 2% then a session cant be run
+    if(ui->BatteryBar->value()<=2){
+        return;
+    }
     if(sessionStarted == true){
         return;
     }
@@ -355,6 +362,7 @@ void MainWindow::startSession(){
         if(ui->recordLabel->text() == "Yes"){
             currentSession->set_record(true);
         }
+
         initTimer(currentSession->get_duration());
     }
 }
@@ -373,10 +381,13 @@ void MainWindow::initTimer(QTimer* timer){
 
 void MainWindow::updateTimer(){
     //time-=1;
+    if(ui->BatteryBar->value() >= 5){
+    drainBattery();
+    }
     currentSession->set_time(currentSession->get_length() - 1);
     int timeLeft = currentSession->get_length();
     qDebug()<<timeLeft;
-    if(timeLeft < 0){
+    if(timeLeft < 0 || ui->BatteryBar->value() <= 5){
     if(currentSession->get_record()){
         db->addRecord(currentUser,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),ui->progressBar->value());
     }
@@ -395,22 +406,46 @@ void MainWindow::updateTimer(){
     //possibly add if statement here to check menu name only if it is on the new session
     masterMenu = masterMenu->getParent();
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
-    time = 10;//testing time will need to uncomment out the above for actual time parameters
+    applyToSkin(false);
     }
     ui->timeLabel->setText(QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
     //masterMenu->addToMenu(1,QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
 }
 
+
+/*
+ *     if (newLevel >= 0.0 && newLevel <= 100.0) {
+        if (newLevel == 0.0 && powerStatus == true) {
+            powerChange();
+            profile->setBLvl(0);
+        }else{
+            profile->setBLvl(newLevel);
+        }
+
+        ui->batteryLevelAdminSpinBox->setValue(newLevel);
+        int newLevelInt = int(newLevel);
+        ui->batteryLevelBar->setValue(newLevelInt);
+ */
+
 //this well need to be altered to handle battery level
-void MainWindow::changeBatteryLevel(int newLevel) {
-    if (newLevel == 0.0 && powerStatus == true) {
-        powerChange();
+
+
+void MainWindow::changeBatteryLevel(double newLevel) {
+
+    if(newLevel <= 0.0 && powerStatus == true) {
+            powerChange();
     }
+    qDebug()<<"new level templevel";
+    qDebug()<<newLevel;
 
-    ui->batteryBox->setValue(newLevel);
-    ui->BatteryBar->setValue(newLevel);
-
+    int batteryLevel = (int) newLevel;
+    qDebug()<<"round down check";
+    qDebug()<<batteryLevel;
+    ui->batteryBox->setValue(batteryLevel);
+    ui->BatteryBar->setValue(batteryLevel);
+    //tempLevel = newLevel;
+    /*
     QString highBatteryHealth = "QProgressBar { selection-background-color: rgb(78, 154, 6); background-color: rgb(255, 255, 255); }";
     QString mediumBatteryHealth = "QProgressBar { selection-background-color: rgb(196, 160, 0); background-color: rgb(255, 255, 255); }";
     QString lowBatteryHealth = "QProgressBar { selection-background-color: rgb(164, 0, 0); background-color: rgb(255, 255, 255); }";
@@ -424,12 +459,15 @@ void MainWindow::changeBatteryLevel(int newLevel) {
     else {
         ui->BatteryBar->setStyleSheet(lowBatteryHealth);
     }
+    */
 }
 
 void MainWindow::changePowerStatus(){
 
     qDebug()<<"pressed";
+
     ui->progressBar->setVisible(powerStatus);
+
     ui->BatteryBar->setVisible(powerStatus);
     //set background to black essentially turn it off
 
@@ -448,8 +486,10 @@ void MainWindow::changePowerStatus(){
         sessionTime = "N/A";
         hz = "N/A";
     }
+
     if(!powerStatus){
        ui->menuWidget->setStyleSheet("background-color:black;");
+       applyToSkin(false);
        currentMenu->setCurrentRow(-1);
     }else{
 
@@ -465,7 +505,17 @@ void MainWindow::changePowerStatus(){
         masterMenu = masterMenu->get(0);
         qDebug()<<masterMenu->getName();
         qDebug()<<masterMenu->getMenuItems();
-
+        int i;
+        if(powerStatus && ui->batteryBox->value()>=80){
+            i=8;
+        }else if(powerStatus && ui->batteryBox->value()>60 && ui->batteryBox->value()<80){
+            i=6;
+        }else if(powerStatus && ui->batteryBox->value()>40 && ui->batteryBox->value()<60){
+            i=4;
+        }else {
+            i=2;
+        }
+        ui->progressBar->setValue(i);
         //set menu back to home while loop gets us back to menu
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
         currentMenu->setCurrentRow(0);
@@ -481,7 +531,6 @@ void MainWindow::changePowerStatus(){
     ui->deltaButton->setEnabled(powerStatus);
     ui->thetaButton->setEnabled(powerStatus);
     ui->selectButton->setEnabled(powerStatus);
-    ui->batteryBox->setEnabled(powerStatus);
     ui->connectionBox->setEnabled(powerStatus);
     ui->clearButton->setEnabled(powerStatus);
     ui->sessionLabel->setHidden(true);
@@ -517,27 +566,6 @@ void MainWindow::powerChange() {
     powerStatus  = !powerStatus;
     changePowerStatus();
 
-  /*
-    if (currentTimerCount != -1) {
-        //Save Record
-        if (masterMenu->getParent()->getName() == "PROGRAMS") {
-            recordings.last()->setDuration((currentTherapy->getTime())-currentTimerCount);
-            recordings.last()->setPowerLevel(maxPowerLevel);
-            db->addTherapyRecord(recordings.last()->getTreatment(),recordings.last()->getStartTime(),recordings.last()->getPowerLevel(),recordings.last()->getDuration());
-        }
-        else {
-            recordings.last()->setDuration(currentTimerCount);
-            recordings.last()->setPowerLevel(maxPowerLevel);
-            db->addFrequencyRecord(recordings.last()->getTreatment(),recordings.last()->getStartTime(),recordings.last()->getPowerLevel(),recordings.last()->getDuration());
-        }
-
-        allRecordings += recordings.last()->toString();
-        //Stop therapy
-        currentTimerCount = -1;
-        currentTherapy->getTimer()->stop();
-        currentTherapy->getTimer()->disconnect();
-        applyToSkin(false);
-    }*/
 }
 void MainWindow::getRecordings(int currentUser){
     //clear values from previous user and add from new
@@ -549,18 +577,55 @@ void MainWindow::getRecordings(int currentUser){
                                          recordings[x]->get_frequency() + " Intensity: " + recordings[x]->get_intensity();
     }
 }
+
+void MainWindow::applyToSkin(int checked) {
+
+    ui->connectionBox->setCurrentIndex(checked ? 1 : 0);
+    connection = checked;
+}
+
+
+void MainWindow::changeBatteryHealth() {
+qDebug()<<"Called";
+int batteryLevel = ui->batteryBox->value();
+if(batteryLevel <= 0 && powerStatus == true) {
+        powerChange();
+}
+if(!sessionStarted){
+tempLevel = (double) batteryLevel;
+}
+ui->BatteryBar->setValue(batteryLevel);
+
+}
+
+void MainWindow::drainBattery() {
+    //double drainFactor = 1.0/3600.0;
+    double other = (double) ui->BatteryBar->value();
+    qDebug()<<"Battery level real";
+    qDebug()<<other;
+    qDebug()<<"TEMPORARY LEVEL";
+    qDebug()<<tempLevel;
+
+    //double battery = batteryHealth - (ui->progressBar->value() * 0.05);
+    double drainValue = tempLevel - ( (ui->progressBar->value()+1) * drainFactor);
+    tempLevel = drainValue;
+    //int battery = (int) drainValue;
+    /*
+    double batteryHealth = tempLevel;
+    double intensity = (double) ui->progressBar->value();
+    double drainValue = batteryHealth-((ui->progressBar->value()+1.0)*10.0)/3600.0;
+    */
+    //qDebug()<<ui->progressBar->value();
+    //qDebug()<<drainFactor;
+    qDebug()<<drainValue;
+    qDebug()<<"_____________";
+    //qDebug()<<battery;
+    //int batteryLevel = (currentSession->get_intensity() == 0) ? ui->BatteryBar->value() - 1: ui->BatteryBar->value() - currentSession->get_intensity()/10;
+    changeBatteryLevel(drainValue);
+}
+
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete masterMenu;
-    delete mainMenu;
-    delete recordedSession;
-    delete sessionMenu;
-    delete currentSession;
-    delete CurrentUser;
-    delete db;
-    delete currentMenu;
-    for (int i=0; i<recordings.size();i++) {
-        delete recordings[i];
-    }
+
 }

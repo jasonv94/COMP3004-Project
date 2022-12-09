@@ -21,18 +21,6 @@ void Menu::addChildMenu(Menu* m) {
     subMenus.push_back(m);
 }
 
-/*
-void Menu::addToMenu(int index,QString value) {
-    if(index == 0){
-        menuItems[index] = menuItems[index].first(6) + " " + value;
-    }else if(index == 1){
-        menuItems[index] = menuItems[index].first(6) + " " + value;
-    }else{
-        menuItems[index] = menuItems[index].first(11) + " " + value;
-    }
-}
-*/
-
 // getters
 QString Menu::getName() { return name; }
 QStringList Menu::getMenuItems() { return menuItems; }

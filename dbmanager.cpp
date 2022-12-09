@@ -44,6 +44,12 @@ bool DBManager::DBInit() {
 
 History * DBManager::getRecord(int pid,int rid){
     History *record;
+    int record_id;//this is session id
+    QString date;
+    QString therapyName;
+    QString sessionTime;
+    QString frequency;
+    int intensity;
     oasisDB.transaction();
     oasisDB.transaction();
     //const QDateTime& time;
@@ -57,15 +63,15 @@ History * DBManager::getRecord(int pid,int rid){
     oasisDB.commit();
     qDebug()<<"Get record function";
     while(query.next()){
-        int record_id = query.value(0).toInt();//this is session id
-        QString date = query.value(2).toString();
-        QString therapyName = query.value(3).toString();
-        QString sessionTime = query.value(4).toString();
-        QString frequency = query.value(5).toString();
-        int intensity = query.value(6).toInt();
-        record = new History(date, therapyName, record_id,sessionTime, frequency,intensity);
-    }
+        record_id = query.value(0).toInt();//this is session id
+        date = query.value(2).toString();
+        therapyName = query.value(3).toString();
+        sessionTime = query.value(4).toString();
+        frequency = query.value(5).toString();
+        intensity = query.value(6).toInt();
 
+    }
+    record = new History(date, therapyName, record_id,sessionTime, frequency,intensity);
     return record;
 
 
@@ -201,110 +207,3 @@ bool DBManager::deleteRecords(int pid) {
     //maybe change back to default
     return oasisDB.commit();
 }
-/*
-
-QList<QString>* DBManager::frequencies() {
-
-    QList<QString>* frequencies = new QList<QString>;
-
-    QSqlQuery query;
-    query.exec("SELECT * FROM FREQUENCIES");
-    while (query.next()) {
-        frequencies->append(query.value(0).toString());
-    }
-    return frequencies;
-}
-
-
-QList<Therapy*>* DBManager::therapies() {
-
-    QList<Therapy*>* therapies = new QList<Therapy*>;
-
-    QSqlQuery query;
-    query.exec("SELECT * FROM therapies");
-    while (query.next()) {
-        Therapy* therapy = new Therapy(query.value(0).toString(), query.value(2).toInt(), query.value(1).toString());
-        therapies->append(therapy);
-    }
-    return therapies;
-}
-
-*/
-/*
- * Type: Private
- * Validates the given parameters.
- *
- * Parameters:
- *  recordType - The type of record, used only for debugging
- *  time - the time the treatment started in QDateTime format
- *  powerLevel - the maximum power level observed during a treatment
- *  duration - the amount of time in milliseconds that the treatment was in use
- *
- * Returns:
- *  True - If the parameters are acceptable
- *  False - Otherwise
- *
- * See Also:
- *  DBManager::addTherapyRecord
- *  DBManager::addFrequencyRecord
- */
-/*
-bool DBManager::isValidRecord(const QString& recordType, const QDateTime& time, int powerLevel, int duration) {
-
-    bool valid = true;
-    if (!time.isValid()) {
-        qDebug() << "Error: Cannot add " << recordType << " record, time is not valid";
-        valid = false;
-    }
-    else if (powerLevel < 0 || powerLevel > 100) {
-        qDebug() << "Error: Cannot add " << recordType << " record, power level is not valid";
-        valid = false;
-    }
-    else if (duration < 0) {
-        qDebug() << "Error: Cannot add " << recordType << " record, duration is not valid";
-        valid = false;
-    }
-    return valid;
-}
-
-*/
-/*
- * Type: Private
- * Adds a treatment record to the database.
- *
- * Parameters:
- *  tableName - The database table to insert this record into
- *  name - The name of the frequency or therapy
- *  time - the time the treatment started in QDateTime format
- *  powerLevel - the maximum power level observed during a treatment
- *  duration - the amount of time in milliseconds that the treatment was in use
- *
- * Returns:
- *  True - If the record was added successfully
- *  False - Otherwise
- *
- * See Also:
- *  DBManager::addTherapyRecord
- *  DBManager::addFrequencyRecord
- */
-/*
-bool DBManager::addRecord(const QString& tableName, const QString& name, const QDateTime& time, int powerLevel, int duration) {
-
-    denasDB.transaction();
-
-    QSqlQuery query;
-    query.prepare("INSERT INTO records (date, power_level, duration) VALUES (:date, :power_level, :duration);");
-    query.bindValue(":date", time.toString(DATE_FORMAT));
-    query.bindValue(":power_level", powerLevel);
-    query.bindValue(":duration", duration);
-    query.exec();
-
-    int rowid = query.lastInsertId().toInt();
-    query.prepare("INSERT INTO " + tableName + "_records VALUES (:name, :id);");
-    query.bindValue(":name", name);
-    query.bindValue(":id", rowid);
-    query.exec();
-
-    return denasDB.commit();
-}
-*/

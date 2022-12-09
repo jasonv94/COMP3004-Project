@@ -242,6 +242,7 @@ QPushButton:pressed {
      <font>
       <family>Noto Sans Adlam Unjoined</family>
       <pointsize>7</pointsize>
+      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -706,6 +707,7 @@ border-radius: 20px;
      <string notr="true">QLabel {
 image: url(:/img/images/short-pulse.png);
 border-radius: 20px;
+
 }</string>
     </property>
     <property name="text">
@@ -1042,6 +1044,7 @@ background-color: rgb(211, 215, 207);</string>
      <font>
       <family>Noto Sans Adlam Unjoined</family>
       <pointsize>7</pointsize>
+      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
