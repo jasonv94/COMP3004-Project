@@ -11,6 +11,9 @@ MainWindow::MainWindow(QWidget *parent)
     db = new DBManager();
     powerStatus = false;
     currentUser = 1;
+    tempLevel = 100.0;
+    batteryHealth = 100;
+    drainFactor = 1.0/3600.00;
     //ui->menuWidget->setVisible(powerStatus);
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
     sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: ","RECORD: "}, masterMenu);
@@ -52,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     */
 
     connect(ui->powerButton, &QPushButton::released, this, &MainWindow::powerChange);
-    connect(ui->batteryBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::changeBatteryLevel);
+    connect(ui->batteryBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::changeBatteryHealth);
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
     connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
@@ -410,15 +413,39 @@ void MainWindow::updateTimer(){
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
 }
 
+
+/*
+ *     if (newLevel >= 0.0 && newLevel <= 100.0) {
+        if (newLevel == 0.0 && powerStatus == true) {
+            powerChange();
+            profile->setBLvl(0);
+        }else{
+            profile->setBLvl(newLevel);
+        }
+
+        ui->batteryLevelAdminSpinBox->setValue(newLevel);
+        int newLevelInt = int(newLevel);
+        ui->batteryLevelBar->setValue(newLevelInt);
+ */
+
 //this well need to be altered to handle battery level
+
+
 void MainWindow::changeBatteryLevel(double newLevel) {
-    if (newLevel <= 0 && powerStatus == true) {
-        powerChange();
+
+    if(newLevel <= 0.0 && powerStatus == true) {
+            powerChange();
     }
-    int batteryLevel = (int)newLevel;
+    qDebug()<<"new level templevel";
+    qDebug()<<newLevel;
+
+    int batteryLevel = (int) newLevel;
+    qDebug()<<"round down check";
+    qDebug()<<batteryLevel;
     ui->batteryBox->setValue(batteryLevel);
     ui->BatteryBar->setValue(batteryLevel);
-
+    //tempLevel = newLevel;
+    /*
     QString highBatteryHealth = "QProgressBar { selection-background-color: rgb(78, 154, 6); background-color: rgb(255, 255, 255); }";
     QString mediumBatteryHealth = "QProgressBar { selection-background-color: rgb(196, 160, 0); background-color: rgb(255, 255, 255); }";
     QString lowBatteryHealth = "QProgressBar { selection-background-color: rgb(164, 0, 0); background-color: rgb(255, 255, 255); }";
@@ -432,6 +459,7 @@ void MainWindow::changeBatteryLevel(double newLevel) {
     else {
         ui->BatteryBar->setStyleSheet(lowBatteryHealth);
     }
+    */
 }
 
 void MainWindow::changePowerStatus(){
@@ -556,16 +584,46 @@ void MainWindow::applyToSkin(int checked) {
     connection = checked;
 }
 
+
+void MainWindow::changeBatteryHealth() {
+qDebug()<<"Called";
+int batteryLevel = ui->batteryBox->value();
+if(batteryLevel <= 0 && powerStatus == true) {
+        powerChange();
+}
+if(!sessionStarted){
+tempLevel = (double) batteryLevel;
+}
+ui->BatteryBar->setValue(batteryLevel);
+
+}
+
 void MainWindow::drainBattery() {
-    double drainFactor = 1.0/3600.0;
-    double batteryHealth = (double)ui->BatteryBar->value();
-    double drainValue = batteryHealth-((ui->progressBar->value()+1.0)*10.0)*drainFactor;
-    qDebug()<<ui->progressBar->value();
-    qDebug()<<drainFactor;
+    //double drainFactor = 1.0/3600.0;
+    double other = (double) ui->BatteryBar->value();
+    qDebug()<<"Battery level real";
+    qDebug()<<other;
+    qDebug()<<"TEMPORARY LEVEL";
+    qDebug()<<tempLevel;
+
+    //double battery = batteryHealth - (ui->progressBar->value() * 0.05);
+    double drainValue = tempLevel - ( (ui->progressBar->value()+1) * drainFactor);
+    tempLevel = drainValue;
+    //int battery = (int) drainValue;
+    /*
+    double batteryHealth = tempLevel;
+    double intensity = (double) ui->progressBar->value();
+    double drainValue = batteryHealth-((ui->progressBar->value()+1.0)*10.0)/3600.0;
+    */
+    //qDebug()<<ui->progressBar->value();
+    //qDebug()<<drainFactor;
     qDebug()<<drainValue;
+    qDebug()<<"_____________";
+    //qDebug()<<battery;
     //int batteryLevel = (currentSession->get_intensity() == 0) ? ui->BatteryBar->value() - 1: ui->BatteryBar->value() - currentSession->get_intensity()/10;
     changeBatteryLevel(drainValue);
 }
+
 MainWindow::~MainWindow()
 {
     delete ui;
