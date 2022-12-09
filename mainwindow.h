@@ -38,6 +38,7 @@ private:
     QString therapyName;
     QString sessionTime;
     QString hz;
+    int connection;
     bool sessionKill;
     bool sessionStarted = false;
     bool powerStatus;
@@ -55,6 +56,8 @@ private:
     void initTimer(QTimer*);
     void updateTimer();
     void getRecordings(int currentUser);
+    void drainBattery();
+    int count;
 private slots:
     void navigateDownMenu();
     void navigateUpMenu();
@@ -67,7 +70,8 @@ private slots:
     void clearHistory();
     void powerChange();
     void changePowerStatus();
-    void changeBatteryLevel(int);
+    void changeBatteryLevel(double);
+    void applyToSkin(int checked);
 
 
 };
