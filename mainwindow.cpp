@@ -352,6 +352,8 @@ void MainWindow::startSession(){
     //masterMenu->getMenuItems()[0].length() < 7 || masterMenu->getMenuItems()[1].length() < 7 || masterMenu->getMenuItems()[2].length() < 11
     }else if(therapyName == "N/A" || sessionTime == "N/A" || hz == "N/A"){
      return;
+    }else if(ui->connectionBox->currentText() == "False"){
+        return;
     }else{
         sessionStarted = true;
         int sepTime = ui->timeLabel->text().indexOf(':');
@@ -381,6 +383,9 @@ void MainWindow::initTimer(QTimer* timer){
 
 void MainWindow::updateTimer(){
     //time-=1;
+    if(ui->connectionBox->currentText() == "False"){
+        return;
+    }
     if(ui->BatteryBar->value() >= 5){
     drainBattery();
     }
