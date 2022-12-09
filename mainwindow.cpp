@@ -99,7 +99,7 @@ void MainWindow::navigateUpMenu(){
     }else if (masterMenu->getName() == "CUSTOM TIME"){
         int sepTime = ui->customTimeLabel->text().indexOf(':');
         int rid = ui->customTimeLabel->text().mid(0,sepTime).toInt();
-        if(rid > 1){
+        if(rid >= 1){
             ui->customTimeLabel->setText(QString::number(rid+1) + ":00");
         }
 
@@ -627,5 +627,10 @@ void MainWindow::drainBattery() {
 MainWindow::~MainWindow()
 {
     delete ui;
+    for(int i = 0; i < recordings.size(); i++){
+       delete recordings[i];
+     }
+     delete db;
+
 
 }
