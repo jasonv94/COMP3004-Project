@@ -7,7 +7,6 @@ Rida Saeed 101072436
 Marie-Josee Salameh 101146303
 Christopher Krol 101010495
 
-
 Who did what in the project:
 
 Jason Varghese:
@@ -33,6 +32,18 @@ Deliverable files:
 - design documents pdf
 - Resource folder containing PNG files for UI
 - Qt files(COMP3004-Project.pro, dbmanager.h, history.h, mainwindow.h, menu.h, therapy.h user.h, dbmanager.cpp, history.cpp, mainwindow.cpp, menu.cpp, therapy.cpp user.cpp, main.cpp, mainwindow.ui)
+
+Device instructions:
+
+- press power button to turn on device
+- select user
+- click on new session, or on history to choose a recorded session if available
+- click the therapy type button to choose therapy, click on the time menu with the select button, to choose time
+- click the record to save
+- click the check button to start the session
+- using the up and down arrows the intensity can be adjusted
+- the session ends once time is up, or if the power button is pressed, if the record option is selected it will save at that point
+- if battery level becomes to low (~5) click the battery combo box when a current session isnt running to increase
 
 Tested Scenarios:
 passed:
