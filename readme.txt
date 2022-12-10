@@ -52,6 +52,7 @@ Troubleshooting scenarios:
 - using buttons when the power is off
 - using session buttons(alpha, beta1, theta, delta) when not in the new session menu
 - using the clear all button when not in history
+- using clear all button when history is empty
 - trying to start a session when no in new session menu
 - trying to start a session when not all of the session info is there(either length or session type missing)
 
