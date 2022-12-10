@@ -11,6 +11,7 @@ Christopher Krol 101010495
 Who did what in the project:
 
 Jason Varghese:
+- UI
 - Database
 - Program Logic
 - Some diagrams
