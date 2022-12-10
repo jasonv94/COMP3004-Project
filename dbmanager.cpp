@@ -148,13 +148,7 @@ bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QStrin
     //const QDateTime& time;
     QSqlQuery query;
     //query.exec("INSERT OR REPLACE INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (1,'2022-01-02','Beta','25 mins','20hz',1);");
-    qDebug()<<pid;
-    qDebug()<<therapyName;
-    qDebug()<<"EXPECTED TIME";
-    qDebug()<<sessionTime;
-    qDebug()<<"EXPECTED FREQ";
-    qDebug()<<frequency;
-    qDebug()<<intensity;
+
     query.prepare("INSERT INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (:pid,:date,:therapyname,:sessiontime,:frequency,:intensity);");
     query.bindValue(":pid", pid);
     query.bindValue(":date", currentDate);//add proper date
