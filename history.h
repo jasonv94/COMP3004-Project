@@ -5,21 +5,20 @@
 
 #include "therapy.h"
 
-/*
- * Stores a therapy session along with the time that it started andis added into the database like this.
+/* Purpose:
+ * Stores a therapy session along with the time that was initialized
+ * Variables/functions describe their respective purpose
+ *
  */
 
 class History{
-    QString date;//change this
+private:
+    QString date;
     int session_id;
     QString therapyName;
     QString sessionTime;
     QString frequency;
     int intensity;
-    //QString user?
-    //QDateTime sessionStart;//signifies when the session started
-    //Therapy session;//stores all of the info about the therapy session
-
 
 public:
     History(QString date,QString therapyName, int session_id,QString sessionTime, QString frequency,int intensity);// change to datetime later

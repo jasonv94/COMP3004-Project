@@ -2,29 +2,35 @@
 #include "ui_mainwindow.h"
 
 #include <QPixmap>
-int MAX_TIME = 300;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-{   time = 10;
+{
     ui->setupUi(this);
     db = new DBManager();
     powerStatus = false;
+    sessionStarted = false;
     currentUser = 1;
     tempLevel = 100.0;
     batteryHealth = 100;
+
+    //Used to represent that the device should ast for an hour
+    //This can be altered but for demo purposes, kept small to show drainage
     drainFactor = 1.0/3600.00;
-    //ui->menuWidget->setVisible(powerStatus);
+
     masterMenu = new Menu("MAIN MENU", {"USER","NEW SESSION","HISTORY"}, nullptr);
     sessionMenu = new Menu("SESSION INFO", {"TYPE: ","TIME: ","FREQUENCY: ","RECORD: "}, masterMenu);
     therapyName = "N/A";
     sessionTime = "N/A";
     hz = "N/A";
-    sessionKill = false;
+
     mainMenu = masterMenu;
     initMenu(masterMenu);
     currentMenu = ui->menuWidget;
     currentMenu->addItems(masterMenu->getMenuItems());
+
+    //Hide labels used to represent session info and default text
     ui->sessionLabel->setHidden(true);
     ui->frequencyLabel->setHidden(true);
     ui->timeLabel->setHidden(true);
@@ -32,38 +38,32 @@ MainWindow::MainWindow(QWidget *parent)
     ui->customTimeLabel->setText("1:00");
     ui->recordLabel->setHidden(true);
     ui->recordLabel->setText("No");
+
+    //set battery levels to 100 which represents full charge
     ui->batteryBox->setValue(100);
     ui->BatteryBar->setValue(100);
     //Retrieve recordings based on current user
     getRecordings(currentUser);
-     // Account for device being "off" on sim start
+
+    //Account for device being "off" on sim start
     powerStatus = false;
     changePowerStatus();
 
-    // if powerStatus is true device on then set current row to beggining
     if(powerStatus == true){
         currentMenu->setCurrentRow(0);
     }
 
-    bool subMenu = false;
-    /*uncommenting for now will most likely delete
-    recordings = db->getRecordings(currentUser);
-    for (int x = 0; x < recordings.size(); x++) {
-        userRecordings += recordings[x]->string_record()+". "+recordings[x]->get_date()+ " " +recordings[x]->get_therapyName()+" "+recordings[x]->get_sessionTime()+" "+
-                                         recordings[x]->get_frequency() + " " + recordings[x]->get_intensity();
-    }
-    */
 
     connect(ui->powerButton, &QPushButton::released, this, &MainWindow::powerChange);
     connect(ui->batteryBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::changeBatteryHealth);
     connect(ui->upButton, &QPushButton::pressed, this, &MainWindow::navigateUpMenu);
     connect(ui->downButton, &QPushButton::pressed, this, &MainWindow::navigateDownMenu);
-    connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
+    connect(ui->okButton, &QPushButton::pressed, this, &MainWindow::startSession);
     connect(ui->alphaButton, &QPushButton::pressed, this, &MainWindow::alphaPressed);
     connect(ui->betaButton, &QPushButton::pressed, this, &MainWindow::betaPressed);
     connect(ui->deltaButton, &QPushButton::pressed, this, &MainWindow::deltaPressed);
     connect(ui->thetaButton, &QPushButton::pressed, this, &MainWindow::thetaPressed);
-    connect(ui->selectButton, &QPushButton::pressed, this, &MainWindow::startSession);
+    connect(ui->selectButton, &QPushButton::pressed, this, &MainWindow::navigateSubMenu);
     connect(ui->clearButton, &QPushButton::pressed, this, &MainWindow::clearHistory);
 
 
@@ -72,10 +72,18 @@ MainWindow::MainWindow(QWidget *parent)
     int w = ui->rmb->width();
     int h = ui->rmb->height();
     ui->rmb->setPixmap(pix.scaled(w, h, Qt::KeepAspectRatio));
-//    ui->userMenu.setVisible(false);
-//    ui->mainMenu.setVisible(false);
-//    ui->groupMenu.setVisible(false);
+
 }
+
+/*
+ * Function: initMenu
+ * Params: Menu *x
+ *
+ * Function is used to initialize menus and link them
+ *
+ * The last variable in each initialization represents its parent menu
+ * If x that means parent is masterMenu
+ */
 
 void MainWindow::initMenu(Menu* x){
 
@@ -91,38 +99,52 @@ void MainWindow::initMenu(Menu* x){
     timeMenu->addChildMenu(customTime);
 }
 
+//Up arrow button
+/*
+ * Function: navigateUpMenu
+ *
+ * Used to move up button on the device
+ * Different usage between menus
+ * If session is started the up arrow will move the progressBar
+ * In the time menu the custom time value is altered
+ * Otherwise used to move up menu screens on device
+ *
+ */
 void MainWindow::navigateUpMenu(){
     if(sessionStarted == true){
-        int value = ui->progressBar->value();
+        int value = ui->progressBar->value();//retrieve value from progressBar and update
         value += 1;
         ui->progressBar->setValue(value);
     }else if (masterMenu->getName() == "CUSTOM TIME"){
-        int sepTime = ui->customTimeLabel->text().indexOf(':');
-        int rid = ui->customTimeLabel->text().mid(0,sepTime).toInt();
-        if(rid >= 1){
-            ui->customTimeLabel->setText(QString::number(rid+1) + ":00");
+        int sepTime = ui->customTimeLabel->text().indexOf(':');//seperate time value to get actual time before colon
+        int timeStart = ui->customTimeLabel->text().mid(0,sepTime).toInt(); // extracts actual time value
+        if(timeStart >= 1){
+            ui->customTimeLabel->setText(QString::number(timeStart+1) + ":00");
         }
 
     }else{
-    int nextIndex = currentMenu->currentRow() - 1;
+
+    int nextIndex = currentMenu->currentRow() - 1;//access the value of the menu
 
     if (nextIndex < 0) {
         nextIndex = currentMenu->count() - 1;
     }
 
-    currentMenu->setCurrentRow(nextIndex);
+    currentMenu->setCurrentRow(nextIndex); //set menu index
     }
 }
 
-//    if(masterMenu->getName()=="VIEW"){
-//qDebug()<<nextIndex;
-//qDebug()<<allRecordings[nextIndex][0];
-//}
-//for retrieving history we need to mock based on the previous
-//in denas it goes based off view so we need to do the same
-//add check to make sure index isnt greater than size of list
-//we need to access directly from list of records
-//test for empty list as well
+//Up arrow button
+/*
+ * Function: navigateUpMenu
+ *
+ * Used to down up button on the device
+ * Different usage between menus
+ * If session is started the down arrow will move the progressBar
+ * In the time menu the custom time value is altered
+ * Otherwise used to move down menu screens on device
+ *
+ */
 void MainWindow::navigateDownMenu() {
 
     if(sessionStarted == true){
@@ -131,22 +153,30 @@ void MainWindow::navigateDownMenu() {
         ui->progressBar->setValue(value);
     }else if(masterMenu->getName() == "CUSTOM TIME"){
         int sepTime = ui->customTimeLabel->text().indexOf(':');
-        int rid = ui->customTimeLabel->text().mid(0,sepTime).toInt();
-        if(rid > 1){
-            ui->customTimeLabel->setText(QString::number(rid-1) + ":00");
+        int timeStart = ui->customTimeLabel->text().mid(0,sepTime).toInt();
+        if(timeStart > 1){
+            ui->customTimeLabel->setText(QString::number(timeStart-1) + ":00");
         }
     }else{
-    int nextIndex = currentMenu->currentRow() + 1;
+    int nextIndex = currentMenu->currentRow() + 1;//access the value of the menu
 
     if (nextIndex > currentMenu->count() - 1) {
         nextIndex = 0;
     }
-    //qDebug()<<nextIndex;
 
-    currentMenu->setCurrentRow(nextIndex);
+    currentMenu->setCurrentRow(nextIndex);//set menu index
     }
 }
 
+/*
+ * Function: navigateSubMenu
+ *
+ * Move between menus on the device
+ * If menu is History the selected recording will be loaded
+ *
+ * Otherwise used to move between menus
+ *
+ */
 void MainWindow::navigateSubMenu() {
 
    int index = currentMenu->currentRow();
@@ -154,12 +184,13 @@ void MainWindow::navigateSubMenu() {
    if(masterMenu->getName()=="HISTORY"){
        if(userRecordings.size() > 0){
             if(userRecordings[index]!=nullptr){
-                int ridIndex = userRecordings[index].indexOf('.');
-                int rid = userRecordings[index].mid(0,ridIndex).toInt();
-                recordedSession = db->getRecord(currentUser,rid);
+                int ridIndex = userRecordings[index].indexOf('.'); //get index of the record id
+                int rid = userRecordings[index].mid(0,ridIndex).toInt();// get recordid to be used to call database
+                recordedSession = db->getRecord(currentUser,rid);//retrieve record based on user and record id
             }
 
             //setting master menu to session so proper menu is set so timecount can work
+            //Update Menu and show the selected info for the session
             masterMenu = sessionMenu;
             updateMenu(sessionMenu->getName(),sessionMenu->getMenuItems());
             therapyName = recordedSession->get_therapyName();
@@ -180,21 +211,19 @@ void MainWindow::navigateSubMenu() {
        return;
    }
 
-
-    qDebug()<< index;
     if (index < 0) return;
-    qDebug()<<masterMenu->getMenuItems()[index];
+
+    //Used to handle the various menu items that can be clicked on
+    //handle based on the name
     if(masterMenu->getMenuItems()[index] == "USER"){
         masterMenu = masterMenu->get(index);
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "NEW SESSION"){
         ui->recordLabel->setHidden(false);
         masterMenu = masterMenu->get(index);
-        //qDebug()<<masterMenu->getMenuItems()[1] + "something";
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getMenuItems()[index] == "HISTORY"){
         masterMenu = masterMenu->get(index);
-        //maybe change this menu name to recordings
         getRecordings(currentUser);
         updateMenu(masterMenu->getName(),userRecordings);
     }else if(masterMenu->getMenuItems()[index] == "TIME: "){
@@ -243,10 +272,8 @@ void MainWindow::navigateSubMenu() {
     }else if(masterMenu->getMenuItems()[index] == "Custom Time"){
         ui->customTimeLabel->setHidden(false);
         masterMenu = masterMenu->get(0);
-        qDebug()<<masterMenu->getName();
         updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     }else if(masterMenu->getName() == "CUSTOM TIME"){
-        qDebug()<<"here";
         sessionTime = ui->customTimeLabel->text();
         ui->timeLabel->setHidden(false);
         ui->timeLabel->setText(sessionTime);
@@ -267,7 +294,17 @@ void MainWindow::navigateSubMenu() {
     }
 
 }
-//remeber to increment down
+
+
+/*
+ * Function: alphaPressed
+ *
+ * Slot for alphaButton
+ *
+ * Sets TYPE and FREQUENCY based on preset values
+ * as shown in therapyName and hz variables
+ *
+ */
 void MainWindow::alphaPressed(){
     if(masterMenu->getName() != "SESSION INFO"){
         return;
@@ -282,8 +319,17 @@ void MainWindow::alphaPressed(){
     //masterMenu->addToMenu(0,"Alpha Session");
     //masterMenu->addToMenu(2,"9-11 Hz");
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
-    qDebug()<<masterMenu->getMenuItems()[0];
 }
+
+/*
+ * Function: betaPressed
+ *
+ * Slot for betaButton
+ *
+ * Sets TYPE and FREQUENCY based on preset values
+ * as shown in therapyName and hz variables
+ *
+ */
 void MainWindow::betaPressed(){
     if(masterMenu->getName() != "SESSION INFO"){
         return;
@@ -295,12 +341,19 @@ void MainWindow::betaPressed(){
     ui->sessionLabel->setText(therapyName);
     ui->frequencyLabel->setHidden(false);
     ui->frequencyLabel->setText(hz);
-    //masterMenu->addToMenu(0,"Beta 1 Session");
-    //masterMenu->addToMenu(2,"12-15 Hz");
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
-    qDebug()<<masterMenu->getMenuItems()[0];
+
 
 }
+/*
+ * Function: deltaPressed
+ *
+ * Slot for deltaButton
+ *
+ * Sets TYPE and FREQUENCY based on preset values
+ * as shown in therapyName and hz variables
+ *
+ */
 void MainWindow::deltaPressed(){
     if(masterMenu->getName() != "SESSION INFO"){
         return;
@@ -312,13 +365,20 @@ void MainWindow::deltaPressed(){
     ui->sessionLabel->setText(therapyName);
     ui->frequencyLabel->setHidden(false);
     ui->frequencyLabel->setText(hz);
-    //masterMenu->addToMenu(0,"Delta Session");
-    //masterMenu->addToMenu(2,"2.5-5 Hz");
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
-    qDebug()<<masterMenu->getMenuItems()[0];
+
 
 }
 
+/*
+ * Function: thetaPressed
+ *
+ * Slot for thetaButton
+ *
+ * Sets TYPE and FREQUENCY based on preset values
+ * as shown in therapyName and hz variables
+ *
+ */
 void MainWindow::thetaPressed(){
     if(masterMenu->getName() != "SESSION INFO"){
         return;
@@ -330,26 +390,30 @@ void MainWindow::thetaPressed(){
     ui->sessionLabel->setText(therapyName);
     ui->frequencyLabel->setHidden(false);
     ui->frequencyLabel->setText(hz);
-    //masterMenu->addToMenu(0,"Theta Session");
-    //masterMenu->addToMenu(2,"6-8 Hz");
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
-    qDebug()<<masterMenu->getMenuItems()[0];
 
 }
-//look on previous git history to review what was here before commented out everything else
+
+/*
+ * Function: startSession
+ *
+ * Slot for okButton
+ *
+ * Start the session, return if invalid options as per if statements
+ *
+ */
+
 void MainWindow::startSession(){
     //If battery is only at 2% then a session cant be run
     if(ui->BatteryBar->value()<=2){
         return;
     }
+    //prevent from starting multiple sessions
     if(sessionStarted == true){
         return;
     }
-    qDebug()<<masterMenu->getName();
     if(masterMenu->getName() != "SESSION INFO"){
         return;
-    //change to add the flags in here
-    //masterMenu->getMenuItems()[0].length() < 7 || masterMenu->getMenuItems()[1].length() < 7 || masterMenu->getMenuItems()[2].length() < 11
     }else if(therapyName == "N/A" || sessionTime == "N/A" || hz == "N/A"){
      return;
     }else if(ui->connectionBox->currentText() == "False"){
@@ -368,38 +432,60 @@ void MainWindow::startSession(){
         initTimer(currentSession->get_duration());
     }
 }
+/*
+ * Function: updateMenu
+ * Update menu screens on the device
+ * Params: selectedMenuItem used for the menu name based on whats selected
+ *         menuItems used to load the new menu items on the menu screen for the device based
+ *                   on its name
+ */
 void MainWindow::updateMenu(const QString selectedMenuItem, const QStringList menuItems){
     currentMenu->clear();
     currentMenu->addItems(menuItems);
     currentMenu->setCurrentRow(0);
-    //mainMenu = sessionMenu;
-
-    //ui->menuLabel->setText(selectedMenuItem);
 }
+/*
+ * Function: initTimer
+ * Initialize timer used for timing a session
+ * Params: *timer  used to initialize timer of
+ * QTimer class
+ */
 void MainWindow::initTimer(QTimer* timer){
     connect(timer, &QTimer::timeout, this, &MainWindow::updateTimer);
     timer->start(1000);
 }
 
+/*
+ * Function: updateTimer
+ * Update timer based on timer->start value in seconds
+ *
+ *
+ */
 void MainWindow::updateTimer(){
-    //time-=1;
+    // if device is not connected pause or do not allow timer to run
     if(ui->connectionBox->currentText() == "False"){
         return;
     }
+    //continue to run and drain battery if battery level is above 5
     if(ui->BatteryBar->value() >= 5){
     drainBattery();
     }
     currentSession->set_time(currentSession->get_length() - 1);
-    int timeLeft = currentSession->get_length();
-    qDebug()<<timeLeft;
+
+    int timeLeft = currentSession->get_length();// get the time left
+
+    //end session if time is up or battery level is too low
     if(timeLeft < 0 || ui->BatteryBar->value() <= 5){
+
+    // if record option selected save to db
+    //stop timer and disconnect
+    // reset values to default/hidden
     if(currentSession->get_record()){
         db->addRecord(currentUser,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),ui->progressBar->value());
     }
     currentSession->get_duration()->stop();
     currentSession->get_duration()->disconnect();
     currentSession = nullptr;
-    //currentMenu->clear();
     therapyName = "N/A";
     sessionTime = "N/A";
     hz = "N/A";
@@ -408,79 +494,48 @@ void MainWindow::updateTimer(){
     ui->sessionLabel->setHidden(true);
     ui->timeLabel->setHidden(true);
     ui->recordLabel->setHidden(true);
-    //possibly add if statement here to check menu name only if it is on the new session
+
     masterMenu = masterMenu->getParent();
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
     applyToSkin(false);
     }
+
     ui->timeLabel->setText(QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
-    //masterMenu->addToMenu(1,QString::number(timeLeft/60) + ((timeLeft%60 < 10) ? + ":0" + QString::number(timeLeft%60) : + ":" + QString::number(timeLeft%60)));
     updateMenu(masterMenu->getName(),masterMenu->getMenuItems());
 }
 
-
 /*
- *     if (newLevel >= 0.0 && newLevel <= 100.0) {
-        if (newLevel == 0.0 && powerStatus == true) {
-            powerChange();
-            profile->setBLvl(0);
-        }else{
-            profile->setBLvl(newLevel);
-        }
-
-        ui->batteryLevelAdminSpinBox->setValue(newLevel);
-        int newLevelInt = int(newLevel);
-        ui->batteryLevelBar->setValue(newLevelInt);
+ * Function: changeBatteryLevel
+ * Update timer based on timer->start value in seconds
+ * Params: newLevel take new battery level from change
+ *
+ *
  */
-
-//this well need to be altered to handle battery level
-
-
 void MainWindow::changeBatteryLevel(double newLevel) {
 
     if(newLevel <= 0.0 && powerStatus == true) {
             powerChange();
     }
-    qDebug()<<"new level templevel";
-    qDebug()<<newLevel;
 
     int batteryLevel = (int) newLevel;
-    qDebug()<<"round down check";
-    qDebug()<<batteryLevel;
     ui->batteryBox->setValue(batteryLevel);
     ui->BatteryBar->setValue(batteryLevel);
-    //tempLevel = newLevel;
-    /*
-    QString highBatteryHealth = "QProgressBar { selection-background-color: rgb(78, 154, 6); background-color: rgb(255, 255, 255); }";
-    QString mediumBatteryHealth = "QProgressBar { selection-background-color: rgb(196, 160, 0); background-color: rgb(255, 255, 255); }";
-    QString lowBatteryHealth = "QProgressBar { selection-background-color: rgb(164, 0, 0); background-color: rgb(255, 255, 255); }";
-
-    if (newLevel >= 50) {
-        ui->BatteryBar->setStyleSheet(highBatteryHealth);
-    }
-    else if (newLevel >= 20) {
-        ui->BatteryBar->setStyleSheet(mediumBatteryHealth);
-    }
-    else {
-        ui->BatteryBar->setStyleSheet(lowBatteryHealth);
-    }
-    */
 }
 
+/*
+ * Function: changePowerStatus
+ * Used to toggle between on and off screens
+ * Used with powerChange slot
+ *
+ */
 void MainWindow::changePowerStatus(){
-
-    qDebug()<<"pressed";
 
     ui->progressBar->setVisible(powerStatus);
 
     ui->BatteryBar->setVisible(powerStatus);
-    //set background to black essentially turn it off
 
-    // this is used to end session resetting time to 10 will remove based on what was there before
+    //if power
     if(sessionStarted == true){
-        //qDebug()<<currentSession->get_name();
-        //qDebug()<<currentSession->get_timestring();
-        //changed from currentSession->get_intensity();
         if(currentSession->get_record()){
             db->addRecord(currentUser,currentSession->get_name(),currentSession->get_timestring(),currentSession->get_frequency(),ui->progressBar->value());
         }
@@ -491,7 +546,7 @@ void MainWindow::changePowerStatus(){
         sessionTime = "N/A";
         hz = "N/A";
     }
-
+        //set background to black essentially turn it off
     if(!powerStatus){
        ui->menuWidget->setStyleSheet("background-color:black;");
        applyToSkin(false);
@@ -505,11 +560,9 @@ void MainWindow::changePowerStatus(){
         //go back to main menu depending on nest level
         while(masterMenu->getName()!="MAIN MENU"){
          masterMenu = masterMenu->getParent();
-
         }
         masterMenu = masterMenu->get(0);
-        qDebug()<<masterMenu->getName();
-        qDebug()<<masterMenu->getMenuItems();
+
         int i;
         if(powerStatus && ui->batteryBox->value()>=80){
             i=8;
@@ -546,15 +599,13 @@ void MainWindow::changePowerStatus(){
     ui->frequencyLabel->setText("");
     ui->sessionLabel->setText("");
 
-
-
-    //ui->menuWidget->setVisible(powerStatus);
-    //ui->menuWidget->setStyleSheet("background-color:black;");
-
-
 }
 
-// delete history based off the currentUser;
+/*
+ * Function: clearHistory
+ * Clear history based on USER
+ *
+ */
 void MainWindow::clearHistory(){
 if(masterMenu->getName() == "HISTORY"){
     db->deleteRecords(currentUser);
@@ -566,12 +617,24 @@ if(masterMenu->getName() == "HISTORY"){
 }
 
 
-
+/*
+ * Function: powerChange
+ * slot used to handle powerButton pressed
+ * toggles powerStatus which enables/disables features
+ * calls changePowerStatus to handle showing device off
+ *
+ */
 void MainWindow::powerChange() {
     powerStatus  = !powerStatus;
     changePowerStatus();
 
 }
+
+/*
+ * Function: getRecordings
+ * Params: currentUser user to retrieve recordings from
+ *
+ */
 void MainWindow::getRecordings(int currentUser){
     //clear values from previous user and add from new
     recordings.clear();
@@ -583,6 +646,11 @@ void MainWindow::getRecordings(int currentUser){
     }
 }
 
+/*
+ * Function: applyToSkin
+ * Params: checked 1 if applied 0 if not
+ *
+ */
 void MainWindow::applyToSkin(int checked) {
 
     ui->connectionBox->setCurrentIndex(checked ? 1 : 0);
@@ -590,8 +658,13 @@ void MainWindow::applyToSkin(int checked) {
 }
 
 
+/*
+ * Function: changeBatteryHealth
+ * slot used to change the batteryBar health as based on the batteryBox
+ * or drained amount
+ *
+ */
 void MainWindow::changeBatteryHealth() {
-qDebug()<<"Called";
 int batteryLevel = ui->batteryBox->value();
 if(batteryLevel <= 0 && powerStatus == true) {
         powerChange();
@@ -603,29 +676,21 @@ ui->BatteryBar->setValue(batteryLevel);
 
 }
 
+/*
+ * Function: drainBattery
+ * Used to drain battery based on drainFactor and progressBar value
+ *
+ */
 void MainWindow::drainBattery() {
-    //double drainFactor = 1.0/3600.0;
-    double other = (double) ui->BatteryBar->value();
-    qDebug()<<"Battery level real";
-    qDebug()<<other;
-    qDebug()<<"TEMPORARY LEVEL";
+
+    //Show that battery level is draining since it will be slower showing for proof
+    qDebug()<<"BATTERY LEVEL";
     qDebug()<<tempLevel;
 
-    //double battery = batteryHealth - (ui->progressBar->value() * 0.05);
     double drainValue = tempLevel - ( (ui->progressBar->value()+1) * drainFactor);
     tempLevel = drainValue;
-    //int battery = (int) drainValue;
-    /*
-    double batteryHealth = tempLevel;
-    double intensity = (double) ui->progressBar->value();
-    double drainValue = batteryHealth-((ui->progressBar->value()+1.0)*10.0)/3600.0;
-    */
-    //qDebug()<<ui->progressBar->value();
-    //qDebug()<<drainFactor;
-    qDebug()<<drainValue;
-    qDebug()<<"_____________";
-    //qDebug()<<battery;
-    //int batteryLevel = (currentSession->get_intensity() == 0) ? ui->BatteryBar->value() - 1: ui->BatteryBar->value() - currentSession->get_intensity()/10;
+
+
     changeBatteryLevel(drainValue);
 }
 

@@ -26,6 +26,14 @@ DBManager::DBManager() {
 }
 
 
+/*
+ * Function: DBInit
+ * Initialize database
+ * Create tables profiles/records
+ * Returns:
+ *  True - If db initialized
+ *
+ */
 bool DBManager::DBInit() {
 
     oasisDB.transaction();
@@ -42,9 +50,19 @@ bool DBManager::DBInit() {
 }
 
 
+/*
+ * Function: getRecord
+ * Adds records from the database based on User
+ * Params: pid userid
+ *         rid record id assigned for each session
+ * Returns:
+ *  True - If the records were successfully removed from the database
+ *
+ */
 History * DBManager::getRecord(int pid,int rid){
     History *record;
-    int record_id;//this is session id
+
+    int record_id = 0;//this is session id
     QString date;
     QString therapyName;
     QString sessionTime;
@@ -54,7 +72,7 @@ History * DBManager::getRecord(int pid,int rid){
     oasisDB.transaction();
     //const QDateTime& time;
     QSqlQuery query;
-    //query.exec
+
 
     query.prepare("SELECT * from records where :pid = pid and rid = :rid LIMIT 1;");
     query.bindValue(":pid", pid);
@@ -63,7 +81,7 @@ History * DBManager::getRecord(int pid,int rid){
     oasisDB.commit();
     qDebug()<<"Get record function";
     while(query.next()){
-        record_id = query.value(0).toInt();//this is session id
+        record_id = query.value(0).toInt();
         date = query.value(2).toString();
         therapyName = query.value(3).toString();
         sessionTime = query.value(4).toString();
@@ -80,13 +98,19 @@ History * DBManager::getRecord(int pid,int rid){
 
 }
 
-
+/*
+ * Function: getRecordings
+ * Adds records from the database based on User
+ * Params: pid userid
+ * Returns:
+ *  vector of type history which is passed to the GUI
+ *
+ */
 QVector<History*> DBManager::getRecordings(int pid) {
     //will have to add for other user next
     QSqlQuery query;
-    QVector<History*> qvr;
+    QVector<History*> recordings;
     oasisDB.transaction();
-    //remeber to add filter with id so look at preparing this properly
     query.prepare("SELECT * from records where :pid = pid;");
     query.bindValue(":pid", pid);
     query.exec();
@@ -100,11 +124,23 @@ QVector<History*> DBManager::getRecordings(int pid) {
         QString frequency = query.value(5).toString();
         int intensity = query.value(6).toInt();
         History *r = new History(date, therapyName, record_id,sessionTime, frequency,intensity);
-        qvr.push_back(r);
+        recordings.push_back(r);
     }
-    return qvr;
+    return recordings;
 }
 
+/*
+ * Function addRecord
+ * Adds records from the database based on User
+ * Params: pid userid
+ *         therapyName name of therapy
+ *         sessionTime time of session represented as string for storage
+ *         frequencency of therpay name
+ *         intensity last saved intensity of the session
+ * Returns:
+ *  True - If the record was successfully added to the database
+ *
+ */
 bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity) {
     //add proper date
     oasisDB.transaction();
@@ -139,59 +175,12 @@ bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QStrin
 
 
 /*
- * Type: Public
- * Adds a therapy record to the database, if the arguments are valid.
  *
- * Parameters:
- *  therapy - the name of the therapy to add to the records, must be capitalized and in the database already
- *  time - the time the therapy started in QDateTime format
- *  powerLevel - the maximum power level observed during a therapy
- *  duration - the amount of time in seconds that the therapy was in use
- *
- * Returns:
- *  True - If the record was successfully added to the database
- *  False - If the arguments were invalid, or if the record couldn't be added to the database
- */
-/*
-bool DBManager::addTherapyRecord(const QString& therapy, const QDateTime& time, int powerLevel, int duration) {
-
-    if (!isValidRecord("therapy", time, powerLevel, duration)) {
-        return false;
-    }
-    return addRecord("therapy", therapy, time, powerLevel, duration);
-}
-
-*/
-/*
- * Type: Public
- * Adds a frequency record to the database, if the arguments are valid.
- *
- * Parameters:
- *  frequency - the name of the frequency to add to the records, must be in the database already
- *  time - the time the frequency treatment started in QDateTime format
- *  powerLevel - the maximum power level observed during a frequency treatment
- *  duration - the amount of time in seconds that the frequency treatment was in use
- *
- * Returns:
- *  True - If the record was successfully added to the database
- *  False - If the arguments were invalid, or if the record couldn't be added to the database
- */
-/*
-bool DBManager::addFrequencyRecord(const QString& frequency, const QDateTime& time, int powerLevel, int duration) {
-    if (!isValidRecord("frequency", time, powerLevel, duration)) {
-        return false;
-    }
-    return addRecord("frequency", frequency, time, powerLevel, duration);
-}
-*/
-
-/*
- * Type: Public
- * Deletes all records from the database.
+ * Deletes records from the database based on User
  *
  * Returns:
  *  True - If the records were successfully removed from the database
- *  False - If the records couldn't be deleted from the database
+ *
  */
 
 bool DBManager::deleteRecords(int pid) {
@@ -204,6 +193,5 @@ bool DBManager::deleteRecords(int pid) {
     query.exec();
     query.prepare("TRUNCATE TABLE records;");
     query.exec();
-    //maybe change back to default
     return oasisDB.commit();
 }

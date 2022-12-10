@@ -11,24 +11,10 @@
 #include "history.h"
 
 
-/* Class Purpose: Manages interactions between application and database
+/* Class Purpose:
+ * Manages interactions between application and database
+ * Creates database, adds records and deletes
  *
- * Data Members:
- * -QSqlDatabase denasDB: the database object
- * -QString DATE_FORMAT: formats of dates going in/out the database
- * -QString DATABASE_PATH: path of the database
- *
- * Class Functions:
- * Getters for frequencies, profile, recordings, therapies
- *
- * bool addTherapyRecord(const QString& therapy, const QDateTime& time, int powerLevel, int duration): adds a therapy record to the database, returns true if it was added properly, false otherwise
- * bool addFrequencyRecord(const QString& frequency, const QDateTime& time, int powerLevel, int duration): adds a frequency record to the database, returns true if it was added properly, false otherwise
- * bool addProfile(int id, double batterLvl, int powerLvl): adds a profile to the database, returns true if it was added properly, false otherwise
- * bool deleteRecords(): deletes all the records
- *
- * bool isValidRecord(const QString& recordType, const QDateTime& time, int powerLevel, int duration): validates the record, returns true if its valid, false otherwise
- * bool addRecord(const QString& tableName, const QString& name, const QDateTime& time, int powerLevel, int duration): adds a record to the database, returns true if it was added properly, false otherwise
- * bool DBInit(): Initalizes the database
  */
 
 class DBManager {
@@ -36,22 +22,18 @@ class DBManager {
 public:
     const QString DATE_FORMAT = "yyyy-MM-dd hh:mm";
     static const QString DATABASE_PATH;
-    QVector<History*> getRecordings(int pid);
-    History *getRecord(int pid, int rid);
+    QVector<History*> getRecordings(int pid);// get recordings based on user
+    History *getRecord(int pid, int rid);//get
     DBManager();
-    bool addTherapyRecord(const QString& therapy, const QDateTime& time, int powerLevel, int duration);
-    bool addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity);
-    bool addProfile(int id, double batterLvl, int powerLvl);
-    bool deleteRecords(int pid);
+    bool addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity);// add record to database
+    bool deleteRecords(int pid);//delete based on user
 
 
 
 private:
-    QSqlDatabase oasisDB;
-
-    bool isValidRecord(const QString& recordType, const QDateTime& time, int powerLevel, int duration);
-    bool addRecord(const QString& tableName, const QString& name, const QDateTime& time, int powerLevel, int duration);
-    bool DBInit();
+    QSqlDatabase oasisDB;// database initializer
+    bool addRecord(const QString& tableName, const QString& name, const QDateTime& time, int powerLevel, int duration);//add record to database
+    bool DBInit();//initialize database
 
 };
 

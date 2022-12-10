@@ -15,7 +15,12 @@ Menu::~Menu() {
     }
 }
 
-
+/*
+ * Function: addChildMenu
+ * Adds submenus to a parent menu
+ * Params: m represents menu that has the child menus
+ *
+ */
 void Menu::addChildMenu(Menu* m) {
 
     subMenus.push_back(m);
