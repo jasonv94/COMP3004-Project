@@ -14,16 +14,14 @@ SOURCES += \
     mainwindow.cpp \
     menu.cpp \
     history.cpp \
-    therapy.cpp \
-    user.cpp
+    therapy.cpp
 
 HEADERS += \
     dbmanager.h \
     mainwindow.h \
     menu.h \
     history.h \
-    therapy.h \
-    user.h
+    therapy.h
 
 FORMS += \
     mainwindow.ui
