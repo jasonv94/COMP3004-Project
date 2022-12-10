@@ -143,6 +143,7 @@ QVector<History*> DBManager::getRecordings(int pid) {
  */
 bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QString frequency, int intensity) {
     //add proper date
+    QString currentDate = QDateTime::currentDateTime().toString("yyyy-MM-dd");
     oasisDB.transaction();
     //const QDateTime& time;
     QSqlQuery query;
@@ -156,7 +157,7 @@ bool DBManager::addRecord(int pid,QString therapyName,QString sessionTime,QStrin
     qDebug()<<intensity;
     query.prepare("INSERT INTO records (pid,date,therapyname,sessiontime,frequency,intensity) VALUES (:pid,:date,:therapyname,:sessiontime,:frequency,:intensity);");
     query.bindValue(":pid", pid);
-    query.bindValue(":date", "2022-01-01");//add proper date
+    query.bindValue(":date", currentDate);//add proper date
     query.bindValue(":therapyname", therapyName);
     query.bindValue(":sessiontime", sessionTime);
     query.bindValue(":frequency", frequency);
