@@ -14,7 +14,6 @@
 #include "menu.h"
 #include "history.h"
 #include "dbmanager.h"
-#include "user.h"
 #include "therapy.h"
 /*Class MainWindow
  * Purpose:
