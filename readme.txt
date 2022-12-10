@@ -13,6 +13,7 @@ Who did what in the project:
 Jason Varghese:
 - Database
 - Program Logic
+- Some diagrams
 
 Rida Saeed:
 - UI
